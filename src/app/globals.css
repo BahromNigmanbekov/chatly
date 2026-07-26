@@ -1,26 +1,138 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-bg: #f3f6f7;
+  --color-surface: #ffffff;
+  --color-surface-raised: #ffffff;
+  --color-border: #e1e8eb;
+  --color-text: #101820;
+  --color-text-muted: #5c6b73;
+  --color-primary: #0f6e68;
+  --color-primary-hover: #0b5854;
+  --color-primary-soft: #e3f1ef;
+  --color-accent: #ff6a45;
+  --color-accent-soft: #ffe9e2;
+  --color-danger: #d64545;
+  --color-online: #35b877;
+  --color-bubble-mine: #0f6e68;
+  --color-bubble-mine-text: #f2fbf9;
+  --color-bubble-theirs: #ffffff;
+  --color-bubble-theirs-text: #101820;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root[data-theme="dark"] {
+  --color-bg: #10151a;
+  --color-surface: #171e24;
+  --color-surface-raised: #1d252c;
+  --color-border: #2a333b;
+  --color-text: #eaf0f2;
+  --color-text-muted: #8e9aa3;
+  --color-primary: #2bb3a8;
+  --color-primary-hover: #3fc7bb;
+  --color-primary-soft: #163330;
+  --color-accent: #ff8a63;
+  --color-accent-soft: #3a2420;
+  --color-danger: #ef6a6a;
+  --color-online: #43cf8b;
+  --color-bubble-mine: #1c7d76;
+  --color-bubble-mine-text: #f2fbf9;
+  --color-bubble-theirs: #1d252c;
+  --color-bubble-theirs-text: #eaf0f2;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not([data-theme="light"]) {
+    --color-bg: #10151a;
+    --color-surface: #171e24;
+    --color-surface-raised: #1d252c;
+    --color-border: #2a333b;
+    --color-text: #eaf0f2;
+    --color-text-muted: #8e9aa3;
+    --color-primary: #2bb3a8;
+    --color-primary-hover: #3fc7bb;
+    --color-primary-soft: #163330;
+    --color-accent: #ff8a63;
+    --color-accent-soft: #3a2420;
+    --color-danger: #ef6a6a;
+    --color-online: #43cf8b;
+    --color-bubble-mine: #1c7d76;
+    --color-bubble-mine-text: #f2fbf9;
+    --color-bubble-theirs: #1d252c;
+    --color-bubble-theirs-text: #eaf0f2;
   }
 }
 
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-surface-raised: var(--color-surface-raised);
+  --color-border: var(--color-border);
+  --color-text: var(--color-text);
+  --color-text-muted: var(--color-text-muted);
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-primary-soft: var(--color-primary-soft);
+  --color-accent: var(--color-accent);
+  --color-accent-soft: var(--color-accent-soft);
+  --color-danger: var(--color-danger);
+  --color-online: var(--color-online);
+  --color-bubble-mine: var(--color-bubble-mine);
+  --color-bubble-mine-text: var(--color-bubble-mine-text);
+  --color-bubble-theirs: var(--color-bubble-theirs);
+  --color-bubble-theirs-text: var(--color-bubble-theirs-text);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-jakarta);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+::selection {
+  background: var(--color-primary-soft);
+}
+
+/* Signature element: breathing presence ring */
+@keyframes chatly-breathe {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-online) 55%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-online) 0%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-online) 0%, transparent);
+  }
+}
+
+.chatly-presence-dot {
+  animation: chatly-breathe 2.4s ease-out infinite;
+}
+
+/* Signature element: typing / voice-recording wave */
+@keyframes chatly-wave {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.chatly-wave-bar {
+  animation: chatly-wave 0.9s ease-in-out infinite;
+  transform-origin: center;
+}
+
+/* Visible focus rings for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
 }

@@ -1,0 +1,138 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function affectedKeys() {
+      return request.resource.data.diff(resource.data).affectedKeys();
+    }
+
+    // ---- users -----------------------------------------------------------
+    match /users/{uid} {
+      allow read: if isSignedIn();
+      allow create: if isSelf(uid);
+      // Changing `username` here must be paired with the matching claim in
+      // `usernames/{username}` (written in the same client transaction) —
+      // getAfter() checks the post-commit state of that other document.
+      allow update: if isSelf(uid) && (
+        !('username' in affectedKeys()) ||
+        getAfter(/databases/$(database)/documents/usernames/$(request.resource.data.username)).data.userId == uid
+      );
+      allow delete: if false;
+    }
+
+    // ---- usernames (uniqueness claims) ------------------------------------
+    match /usernames/{username} {
+      function validFormat() {
+        return username.matches('^[a-z0-9_]{5,32}$');
+      }
+
+      // Public so the "band/bo'sh" availability check works before sign-up
+      // (an account doesn't exist yet at that point). The doc only holds a uid,
+      // same exposure level as "this @handle is taken" on any other platform.
+      allow read: if true;
+      // Only fires when the doc doesn't exist yet — i.e. the username is free.
+      allow create: if isSignedIn()
+        && validFormat()
+        && request.resource.data.keys().hasOnly(['userId'])
+        && request.resource.data.userId == request.auth.uid;
+      // Only fires when the doc already exists — only its current owner may touch it.
+      allow update: if isSignedIn()
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // ---- chats -------------------------------------------------------------
+    match /chats/{chatId} {
+      function isParticipant() {
+        return isSignedIn() && request.auth.uid in resource.data.participantIds;
+      }
+      function isAdmin() {
+        return isSignedIn() && request.auth.uid in resource.data.adminIds;
+      }
+      function isOwner() {
+        return isSignedIn() && resource.data.ownerId == request.auth.uid;
+      }
+      function onlyMessagingFieldsChanged() {
+        return affectedKeys().hasOnly(['lastMessage', 'typingStatus', 'unreadCounts']);
+      }
+      function onlyGroupSettingsChanged() {
+        return affectedKeys().hasOnly(['groupName', 'groupPhotoURL', 'onlyAdminsCanPost']);
+      }
+      function onlyMembershipChanged() {
+        return affectedKeys().hasOnly(['participantIds', 'adminIds', 'unreadCounts']);
+      }
+      function isSelfLeaving() {
+        return affectedKeys().hasOnly(['participantIds', 'adminIds', 'unreadCounts'])
+          && !(request.auth.uid in request.resource.data.participantIds)
+          && request.auth.uid in resource.data.participantIds;
+      }
+
+      allow read: if isParticipant();
+
+      allow create: if isSignedIn()
+        && request.auth.uid in request.resource.data.participantIds
+        && (
+          (request.resource.data.type == 'direct' && request.resource.data.participantIds.size() == 2)
+          || (
+            request.resource.data.type == 'group'
+            && request.resource.data.ownerId == request.auth.uid
+            && request.auth.uid in request.resource.data.adminIds
+          )
+        );
+
+      allow update: if isParticipant() && (
+        onlyMessagingFieldsChanged()
+        || (onlyGroupSettingsChanged() && isAdmin())
+        || (onlyMembershipChanged() && isAdmin())
+        || isSelfLeaving()
+      );
+
+      allow delete: if isOwner();
+
+      // ---- messages ----------------------------------------------------
+      match /messages/{messageId} {
+        function chatData() {
+          return get(/databases/$(database)/documents/chats/$(chatId)).data;
+        }
+        function isChatParticipant() {
+          return isSignedIn() && request.auth.uid in chatData().participantIds;
+        }
+        function isChatAdmin() {
+          return isSignedIn() && request.auth.uid in chatData().adminIds;
+        }
+        function msgAffectedKeys() {
+          return request.resource.data.diff(resource.data).affectedKeys();
+        }
+
+        allow read: if isChatParticipant();
+
+        allow create: if isChatParticipant()
+          && request.resource.data.senderId == request.auth.uid
+          && (!chatData().onlyAdminsCanPost || isChatAdmin());
+
+        // Status/read receipts (any participant), hiding-for-self (any participant),
+        // or the original sender performing an "everyone" delete (content -> system).
+        allow update: if isChatParticipant() && (
+          msgAffectedKeys().hasOnly(['status', 'readBy'])
+          || msgAffectedKeys().hasOnly(['deletedFor'])
+          || (
+            msgAffectedKeys().hasOnly(['type', 'content', 'mediaURL'])
+            && resource.data.senderId == request.auth.uid
+          )
+        );
+
+        allow delete: if false;
+      }
+    }
+  }
+}
