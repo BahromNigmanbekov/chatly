@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Avatar } from "@/components/ui/Avatar";
 import { OnlineDot } from "@/components/presence/OnlineDot";
+import { ReadStatusTicks } from "@/components/chat/ReadStatusTicks";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useChatDisplay } from "@/hooks/useChatDisplay";
 import { formatMessageTime } from "@/lib/utils/formatTime";
@@ -35,32 +36,34 @@ export function ChatListItem({ chat }: { chat: Chat }) {
     <Link
       href={`/chats/${chat.id}`}
       className={cn(
-        "flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-primary-soft",
+        "flex min-h-18 items-center gap-3 rounded-xl px-3 transition-colors hover:bg-primary-soft",
         isActive && "bg-primary-soft",
       )}
     >
       <div className="relative shrink-0">
-        <Avatar name={name} photoURL={photoURL} size="md" />
+        <Avatar name={name} photoURL={photoURL} size="lg" />
         {chat.type === "direct" && (
           <OnlineDot online={presence.online} className="absolute -bottom-0.5 -right-0.5" />
         )}
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
-          <span className="truncate font-medium text-text">{name}</span>
+          <span className="truncate font-display font-semibold text-text">{name}</span>
           {chat.lastMessage?.timestamp && (
             <span className="shrink-0 text-xs text-text-muted">
               {formatMessageTime(chat.lastMessage.timestamp)}
             </span>
           )}
         </div>
-        <div className="flex items-center justify-between gap-2">
-          <span className="truncate text-sm text-text-muted">
-            {isMine && chat.lastMessage ? "Siz: " : ""}
-            {preview}
+        <div className="mt-0.5 flex items-center justify-between gap-2">
+          <span className="flex min-w-0 items-center gap-1 truncate text-sm text-text-muted">
+            {isMine && chat.lastMessage && (
+              <ReadStatusTicks status={chat.lastMessage.status ?? "sent"} tone="muted" />
+            )}
+            <span className="truncate">{preview}</span>
           </span>
           {unread > 0 && (
-            <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-accent px-1.5 text-xs font-semibold text-white">
+            <span className="chatly-ink-drop flex h-5 min-w-5 shrink-0 items-center justify-center bg-accent px-1.5 text-xs font-semibold text-white">
               {unread > 99 ? "99+" : unread}
             </span>
           )}

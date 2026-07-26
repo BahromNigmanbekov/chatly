@@ -2,6 +2,7 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
+import { MobileTabBar } from "@/components/chat/MobileTabBar";
 import { Sidebar } from "@/components/chat/Sidebar";
 import { Spinner } from "@/components/ui/Spinner";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -25,26 +26,33 @@ export default function MainLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  const isChatOpen = pathname.startsWith("/chats/");
+  // On mobile, exactly one pane is visible at a time: the chat list only at
+  // "/", everything else (open chat, profile, search, group flows) takes the
+  // full screen. Desktop always shows both panes side by side.
+  const isHome = pathname === "/";
+  const showTabBar = pathname === "/" || pathname === "/profile";
 
   return (
-    <div className="flex min-h-0 flex-1">
-      <aside
-        className={cn(
-          "w-full shrink-0 border-border bg-surface md:flex md:w-[380px] md:border-r",
-          isChatOpen ? "hidden" : "flex flex-col",
-        )}
-      >
-        <Sidebar />
-      </aside>
-      <main
-        className={cn(
-          "min-h-0 min-w-0 flex-1 bg-bg",
-          isChatOpen ? "flex flex-col" : "hidden md:flex md:flex-col",
-        )}
-      >
-        {children}
-      </main>
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex min-h-0 flex-1">
+        <aside
+          className={cn(
+            "w-full shrink-0 flex-col border-border bg-surface md:flex md:w-95 md:border-r",
+            isHome ? "flex" : "hidden",
+          )}
+        >
+          <Sidebar />
+        </aside>
+        <main
+          className={cn(
+            "min-h-0 min-w-0 flex-1 flex-col bg-bg md:flex",
+            isHome ? "hidden" : "flex",
+          )}
+        >
+          {children}
+        </main>
+      </div>
+      {showTabBar && <MobileTabBar />}
     </div>
   );
 }

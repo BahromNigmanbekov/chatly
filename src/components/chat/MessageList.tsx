@@ -20,9 +20,9 @@ export function MessageList({ chat, uid, senderNames }: MessageListProps) {
 
   useEffect(() => {
     if (messages.length === 0) return;
-    void markMessagesDelivered(chat.id, uid, messages);
-    void markMessagesRead(chat.id, uid, messages);
-  }, [chat.id, uid, messages]);
+    void markMessagesDelivered(chat, uid, messages);
+    void markMessagesRead(chat, uid, messages);
+  }, [chat, uid, messages]);
 
   useEffect(() => {
     const el = scrollRef.current;

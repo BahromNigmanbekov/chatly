@@ -9,8 +9,8 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { chatDoc, messagesCol } from "@/lib/firebase/firestore";
-import type { MessageType } from "@/types/message";
-import type { ChatMessage } from "@/types/message";
+import type { Chat } from "@/types/chat";
+import type { ChatMessage, MessageType } from "@/types/message";
 
 const PREVIEW_TEXT: Record<MessageType, string> = {
   text: "",
@@ -54,10 +54,12 @@ export async function sendMessage(params: SendMessageParams): Promise<void> {
 
   batch.update(chatDoc(params.chatId), {
     lastMessage: {
+      messageId: messageRef.id,
       text: params.type === "text" ? (params.content ?? "") : PREVIEW_TEXT[params.type],
       senderId: params.senderId,
       timestamp: serverTimestamp(),
       type: params.type,
+      status: "sent",
     },
     [`typingStatus.${params.senderId}`]: deleteField(),
     ...unreadIncrements,
@@ -66,27 +68,34 @@ export async function sendMessage(params: SendMessageParams): Promise<void> {
   await batch.commit();
 }
 
-export async function markMessagesDelivered(chatId: string, uid: string, messages: ChatMessage[]) {
+export async function markMessagesDelivered(chat: Chat, uid: string, messages: ChatMessage[]) {
   const toUpdate = messages.filter((m) => m.senderId !== uid && m.status === "sent");
   if (toUpdate.length === 0) return;
   const batch = writeBatch(db);
   for (const message of toUpdate) {
-    batch.update(doc(messagesCol(chatId), message.id), { status: "delivered" });
+    batch.update(doc(messagesCol(chat.id), message.id), { status: "delivered" });
+  }
+  if (chat.lastMessage && toUpdate.some((m) => m.id === chat.lastMessage?.messageId)) {
+    batch.update(chatDoc(chat.id), { "lastMessage.status": "delivered" });
   }
   await batch.commit();
 }
 
-export async function markMessagesRead(chatId: string, uid: string, messages: ChatMessage[]) {
+export async function markMessagesRead(chat: Chat, uid: string, messages: ChatMessage[]) {
   const toUpdate = messages.filter((m) => m.senderId !== uid && !m.readBy.includes(uid));
   if (toUpdate.length > 0) {
     const batch = writeBatch(db);
     for (const message of toUpdate) {
-      batch.update(doc(messagesCol(chatId), message.id), {
+      batch.update(doc(messagesCol(chat.id), message.id), {
         status: "read",
         readBy: arrayUnion(uid),
       });
     }
-    batch.update(chatDoc(chatId), { [`unreadCounts.${uid}`]: 0 });
+    const patch: Record<string, unknown> = { [`unreadCounts.${uid}`]: 0 };
+    if (chat.lastMessage && toUpdate.some((m) => m.id === chat.lastMessage?.messageId)) {
+      patch["lastMessage.status"] = "read";
+    }
+    batch.update(chatDoc(chat.id), patch);
     await batch.commit();
   }
 }

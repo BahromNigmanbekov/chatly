@@ -1,64 +1,64 @@
 @import "tailwindcss";
 
 :root {
-  --color-bg: #f3f6f7;
+  --color-bg: #f6f4f1;
   --color-surface: #ffffff;
   --color-surface-raised: #ffffff;
-  --color-border: #e1e8eb;
-  --color-text: #101820;
-  --color-text-muted: #5c6b73;
-  --color-primary: #0f6e68;
-  --color-primary-hover: #0b5854;
-  --color-primary-soft: #e3f1ef;
-  --color-accent: #ff6a45;
-  --color-accent-soft: #ffe9e2;
-  --color-danger: #d64545;
-  --color-online: #35b877;
-  --color-bubble-mine: #0f6e68;
-  --color-bubble-mine-text: #f2fbf9;
+  --color-border: #e7e2db;
+  --color-text: #1c2033;
+  --color-text-muted: #6b6f80;
+  --color-primary: #1f2b52;
+  --color-primary-hover: #16203e;
+  --color-primary-soft: #e7eaf3;
+  --color-accent: #e2963a;
+  --color-accent-soft: #fbebd3;
+  --color-danger: #c1443b;
+  --color-online: #3fae72;
+  --color-bubble-mine: #1f2b52;
+  --color-bubble-mine-text: #f5f6fa;
   --color-bubble-theirs: #ffffff;
-  --color-bubble-theirs-text: #101820;
+  --color-bubble-theirs-text: #1c2033;
 }
 
 :root[data-theme="dark"] {
-  --color-bg: #10151a;
-  --color-surface: #171e24;
-  --color-surface-raised: #1d252c;
-  --color-border: #2a333b;
-  --color-text: #eaf0f2;
-  --color-text-muted: #8e9aa3;
-  --color-primary: #2bb3a8;
-  --color-primary-hover: #3fc7bb;
-  --color-primary-soft: #163330;
-  --color-accent: #ff8a63;
-  --color-accent-soft: #3a2420;
-  --color-danger: #ef6a6a;
-  --color-online: #43cf8b;
-  --color-bubble-mine: #1c7d76;
-  --color-bubble-mine-text: #f2fbf9;
-  --color-bubble-theirs: #1d252c;
-  --color-bubble-theirs-text: #eaf0f2;
+  --color-bg: #12182b;
+  --color-surface: #1b2340;
+  --color-surface-raised: #212a4a;
+  --color-border: #2e385c;
+  --color-text: #eceae4;
+  --color-text-muted: #9aa0b4;
+  --color-primary: #7c8fe0;
+  --color-primary-hover: #93a3e8;
+  --color-primary-soft: #263259;
+  --color-accent: #f0b15e;
+  --color-accent-soft: #3a2e1a;
+  --color-danger: #e57b73;
+  --color-online: #59cb8d;
+  --color-bubble-mine: #33427a;
+  --color-bubble-mine-text: #f5f6fa;
+  --color-bubble-theirs: #212a4a;
+  --color-bubble-theirs-text: #eceae4;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --color-bg: #10151a;
-    --color-surface: #171e24;
-    --color-surface-raised: #1d252c;
-    --color-border: #2a333b;
-    --color-text: #eaf0f2;
-    --color-text-muted: #8e9aa3;
-    --color-primary: #2bb3a8;
-    --color-primary-hover: #3fc7bb;
-    --color-primary-soft: #163330;
-    --color-accent: #ff8a63;
-    --color-accent-soft: #3a2420;
-    --color-danger: #ef6a6a;
-    --color-online: #43cf8b;
-    --color-bubble-mine: #1c7d76;
-    --color-bubble-mine-text: #f2fbf9;
-    --color-bubble-theirs: #1d252c;
-    --color-bubble-theirs-text: #eaf0f2;
+    --color-bg: #12182b;
+    --color-surface: #1b2340;
+    --color-surface-raised: #212a4a;
+    --color-border: #2e385c;
+    --color-text: #eceae4;
+    --color-text-muted: #9aa0b4;
+    --color-primary: #7c8fe0;
+    --color-primary-hover: #93a3e8;
+    --color-primary-soft: #263259;
+    --color-accent: #f0b15e;
+    --color-accent-soft: #3a2e1a;
+    --color-danger: #e57b73;
+    --color-online: #59cb8d;
+    --color-bubble-mine: #33427a;
+    --color-bubble-mine-text: #f5f6fa;
+    --color-bubble-theirs: #212a4a;
+    --color-bubble-theirs-text: #eceae4;
   }
 }
 
@@ -80,8 +80,12 @@
   --color-bubble-mine-text: var(--color-bubble-mine-text);
   --color-bubble-theirs: var(--color-bubble-theirs);
   --color-bubble-theirs-text: var(--color-bubble-theirs-text);
-  --font-sans: var(--font-inter);
-  --font-display: var(--font-jakarta);
+  --font-sans: var(--font-public-sans);
+  --font-display: var(--font-fraunces);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
 }
 
 body {
@@ -97,37 +101,108 @@ body {
   background: var(--color-primary-soft);
 }
 
-/* Signature element: breathing presence ring */
-@keyframes chatly-breathe {
-  0% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-online) 55%, transparent);
+/* Signature shape: "ink-drop" — a rounded square with one corner pulled to a
+   point. Used consistently for unread badges, the pinned-message rail, and
+   the tail corner of your own message bubbles. */
+.chatly-ink-drop {
+  border-radius: 999px 999px 999px 4px;
+}
+.chatly-ink-drop-mirror {
+  border-radius: 999px 999px 4px 999px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Signature element: breathing presence ring */
+  @keyframes chatly-breathe {
+    0% {
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-online) 55%, transparent);
+    }
+    70% {
+      box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-online) 0%, transparent);
+    }
+    100% {
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-online) 0%, transparent);
+    }
   }
-  70% {
-    box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-online) 0%, transparent);
+
+  .chatly-presence-dot {
+    animation: chatly-breathe 2.4s ease-out infinite;
   }
-  100% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-online) 0%, transparent);
+
+  /* Signature element: typing / voice-recording wave */
+  @keyframes chatly-wave {
+    0%,
+    100% {
+      transform: scaleY(0.35);
+    }
+    50% {
+      transform: scaleY(1);
+    }
+  }
+
+  .chatly-wave-bar {
+    animation: chatly-wave 0.9s ease-in-out infinite;
+    transform-origin: center;
+  }
+
+  @keyframes chatly-pop-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.85) translateY(4px);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  .chatly-message-in {
+    animation: chatly-pop-in 0.22s cubic-bezier(0.2, 0.8, 0.3, 1);
+  }
+
+  @keyframes chatly-sheet-up {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+  @keyframes chatly-fade-scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes chatly-overlay-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .chatly-sheet-enter {
+    animation: chatly-sheet-up 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .chatly-dialog-enter {
+    animation: chatly-fade-scale-in 0.18s ease-out;
+  }
+  .chatly-overlay-enter {
+    animation: chatly-overlay-in 0.18s ease-out;
   }
 }
 
-.chatly-presence-dot {
-  animation: chatly-breathe 2.4s ease-out infinite;
-}
-
-/* Signature element: typing / voice-recording wave */
-@keyframes chatly-wave {
-  0%,
-  100% {
-    transform: scaleY(0.35);
+@media (prefers-reduced-motion: reduce) {
+  .chatly-presence-dot,
+  .chatly-wave-bar {
+    animation: none;
   }
-  50% {
-    transform: scaleY(1);
-  }
-}
-
-.chatly-wave-bar {
-  animation: chatly-wave 0.9s ease-in-out infinite;
-  transform-origin: center;
 }
 
 /* Visible focus rings for keyboard navigation */

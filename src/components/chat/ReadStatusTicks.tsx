@@ -1,14 +1,29 @@
 import { cn } from "@/lib/utils/cn";
 import type { MessageStatus } from "@/types/message";
 
-export function ReadStatusTicks({ status }: { status: MessageStatus }) {
+interface ReadStatusTicksProps {
+  status: MessageStatus;
+  /** "onBubble" = light strokes for the colored sent-bubble; "muted" = for use on plain surfaces (e.g. the chat list preview). */
+  tone?: "onBubble" | "muted";
+}
+
+export function ReadStatusTicks({ status, tone = "onBubble" }: ReadStatusTicksProps) {
   const isRead = status === "read";
   const showDouble = status === "delivered" || status === "read";
+
+  const colorClass =
+    tone === "muted"
+      ? isRead
+        ? "text-primary"
+        : "text-text-muted"
+      : isRead
+        ? "text-white"
+        : "text-white/70";
 
   return (
     <svg
       viewBox="0 0 20 12"
-      className={cn("h-3 w-4", isRead ? "text-white" : "text-white/70")}
+      className={cn("h-3 w-4", colorClass)}
       aria-label={
         status === "read" ? "O'qildi" : status === "delivered" ? "Yetkazildi" : "Yuborildi"
       }

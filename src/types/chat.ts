@@ -1,5 +1,5 @@
 import type { Timestamp } from "firebase/firestore";
-import type { MessageType } from "./message";
+import type { MessageStatus, MessageType } from "./message";
 
 export type ChatType = "direct" | "group";
 
@@ -9,10 +9,12 @@ export interface TypingEntry {
 }
 
 export interface LastMessagePreview {
+  messageId: string;
   text: string;
   senderId: string;
   timestamp: Timestamp | null;
   type: MessageType;
+  status: MessageStatus;
 }
 
 export interface Chat {
