@@ -1,14 +1,15 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Avatar } from "@/components/ui/Avatar";
 import { BackButton } from "@/components/chat/BackButton";
+import { PinnedMessageBar } from "@/components/chat/PinnedMessageBar";
 import { OnlineDot } from "@/components/presence/OnlineDot";
 import { TypingWave } from "@/components/presence/TypingWave";
 import { useChatDisplay } from "@/hooks/useChatDisplay";
 import { isTypingEntryFresh } from "@/hooks/useTypingStatus";
 import { formatLastSeen } from "@/lib/utils/formatTime";
+import { useModalStore } from "@/store/useModalStore";
 import type { Chat } from "@/types/chat";
 import type { UserProfile } from "@/types/user";
 
@@ -18,8 +19,41 @@ interface ChatHeaderProps {
   participantProfiles: Record<string, UserProfile>;
 }
 
+function CallButton({ kind }: { kind: "audio" | "video" }) {
+  return (
+    <button
+      type="button"
+      title="Tez orada qo'shiladi"
+      onClick={() => undefined}
+      aria-label={kind === "audio" ? "Ovozli qo'ng'iroq" : "Video qo'ng'iroq"}
+      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-text-muted opacity-50 hover:bg-surface-raised"
+    >
+      {kind === "audio" ? (
+        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+          <path
+            d="M6.5 3.5c1 0 2.8 2.6 2.8 3.6s-1.5 1.7-1.5 2.6c0 1.8 3 4.8 4.8 4.8.9 0 1.7-1.5 2.6-1.5 1 0 3.6 1.8 3.6 2.8 0 1.4-1.7 3.2-3.2 3.2C10.9 19 5 13.1 5 8.2c0-1.5 1.8-3.2 3.2-3.2z"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinejoin="round"
+          />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+          <path
+            d="M3.5 7.5A1.5 1.5 0 015 6h8a1.5 1.5 0 011.5 1.5v9A1.5 1.5 0 0113 18H5a1.5 1.5 0 01-1.5-1.5v-9zM16 10l4.5-2.5v9L16 14"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinejoin="round"
+          />
+        </svg>
+      )}
+    </button>
+  );
+}
+
 export function ChatHeader({ chat, uid, participantProfiles }: ChatHeaderProps) {
   const { name, photoURL, presence } = useChatDisplay(chat, uid);
+  const setGroupSettingsChatId = useModalStore((s) => s.setGroupSettingsChatId);
   const [, forceTick] = useState(0);
 
   useEffect(() => {
@@ -30,8 +64,6 @@ export function ChatHeader({ chat, uid, participantProfiles }: ChatHeaderProps) 
   const typingEntries = Object.entries(chat.typingStatus ?? {}).filter(
     ([id, entry]) => id !== uid && entry.updatedAt && isTypingEntryFresh(entry.updatedAt.toMillis()),
   );
-
-  const href = chat.type === "group" ? `/groups/${chat.id}` : undefined;
 
   let subtitle: React.ReactNode;
   if (typingEntries.length > 0) {
@@ -62,7 +94,7 @@ export function ChatHeader({ chat, uid, participantProfiles }: ChatHeaderProps) 
     );
   }
 
-  const content = (
+  const info = (
     <div className="flex items-center gap-3 px-1 py-1">
       <div className="relative shrink-0">
         <Avatar name={name} photoURL={photoURL} size="md" />
@@ -78,14 +110,32 @@ export function ChatHeader({ chat, uid, participantProfiles }: ChatHeaderProps) 
   );
 
   return (
-    <div className="flex items-center gap-2 border-b border-border px-3 py-2.5">
-      <BackButton />
-      {href ? (
-        <Link href={href} className="min-w-0 flex-1 rounded-lg hover:bg-primary-soft">
-          {content}
-        </Link>
-      ) : (
-        <div className="min-w-0 flex-1">{content}</div>
+    <div>
+      <div
+        className="flex items-center gap-2 border-b border-border px-3 py-2.5"
+        style={{ paddingTop: "calc(var(--safe-top) + 0.625rem)" }}
+      >
+        <BackButton />
+        {chat.type === "group" ? (
+          <button
+            type="button"
+            onClick={() => setGroupSettingsChatId(chat.id)}
+            className="min-w-0 flex-1 rounded-lg text-left hover:bg-surface-raised"
+          >
+            {info}
+          </button>
+        ) : (
+          <div className="min-w-0 flex-1">{info}</div>
+        )}
+        <CallButton kind="audio" />
+        <CallButton kind="video" />
+      </div>
+      {chat.pinnedMessageId && (
+        <PinnedMessageBar
+          chatId={chat.id}
+          messageId={chat.pinnedMessageId}
+          canUnpin={chat.type === "direct" || chat.adminIds.includes(uid)}
+        />
       )}
     </div>
   );

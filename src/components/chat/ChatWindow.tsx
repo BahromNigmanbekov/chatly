@@ -1,23 +1,48 @@
 "use client";
 
+import { useState } from "react";
 import { ChatHeader } from "@/components/chat/ChatHeader";
 import { MessageInput } from "@/components/chat/MessageInput";
 import { MessageList } from "@/components/chat/MessageList";
 import { useParticipantProfiles } from "@/hooks/useParticipantProfiles";
+import { useAuthStore } from "@/store/useAuthStore";
 import type { Chat } from "@/types/chat";
+import type { ChatMessage } from "@/types/message";
 
 export function ChatWindow({ chat, uid }: { chat: Chat; uid: string }) {
-  const participantProfiles = useParticipantProfiles(chat.type === "group" ? chat.participantIds : []);
+  const ownProfile = useAuthStore((s) => s.profile);
+  const participantProfiles = useParticipantProfiles(chat.participantIds);
+  const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
+  const [editingMessage, setEditingMessage] = useState<ChatMessage | null>(null);
+
   const senderNames = Object.fromEntries(
     Object.entries(participantProfiles).map(([id, p]) => [id, p.displayName]),
   );
+  if (ownProfile) senderNames[uid] = ownProfile.displayName;
+
   const canPost = !chat.onlyAdminsCanPost || chat.adminIds.includes(uid);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <ChatHeader chat={chat} uid={uid} participantProfiles={participantProfiles} />
-      <MessageList chat={chat} uid={uid} senderNames={senderNames} />
-      <MessageInput chatId={chat.id} uid={uid} participantIds={chat.participantIds} disabled={!canPost} />
+      <MessageList
+        chat={chat}
+        uid={uid}
+        senderNames={senderNames}
+        onReply={setReplyingTo}
+        onEdit={setEditingMessage}
+      />
+      <MessageInput
+        chatId={chat.id}
+        uid={uid}
+        participantIds={chat.participantIds}
+        disabled={!canPost}
+        replyingTo={replyingTo}
+        onCancelReply={() => setReplyingTo(null)}
+        senderNames={senderNames}
+        editingMessage={editingMessage}
+        onCancelEdit={() => setEditingMessage(null)}
+      />
     </div>
   );
 }

@@ -11,7 +11,7 @@ export function ThemeToggle() {
       type="button"
       onClick={toggleTheme}
       aria-label={theme === "dark" ? "Yorug' rejimga o'tish" : "Qorong'i rejimga o'tish"}
-      className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-text hover:bg-primary-soft"
+      className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface text-text hover:bg-primary-soft"
     >
       {theme === "dark" ? (
         <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden>

@@ -1,35 +1,83 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { ReplyQuote } from "@/components/chat/ReplyQuote";
 import { useTypingPublisher } from "@/hooks/useTypingStatus";
 import { useVoiceRecorder } from "@/hooks/useVoiceRecorder";
-import { sendMessage } from "@/lib/firebase/messages";
+import { editMessage, sendMessage } from "@/lib/firebase/messages";
 import { chatMediaPath, uploadWithProgress } from "@/lib/firebase/storage";
 import { getVideoDuration } from "@/lib/utils/media";
+import { messagePreviewText } from "@/lib/utils/messagePreview";
 import { formatDuration } from "@/lib/utils/formatTime";
 import { cn } from "@/lib/utils/cn";
+import type { ChatMessage } from "@/types/message";
 
 interface MessageInputProps {
   chatId: string;
   uid: string;
   participantIds: string[];
   disabled?: boolean;
+  replyingTo: ChatMessage | null;
+  onCancelReply: () => void;
+  senderNames: Record<string, string>;
+  editingMessage: ChatMessage | null;
+  onCancelEdit: () => void;
 }
 
-export function MessageInput({ chatId, uid, participantIds, disabled }: MessageInputProps) {
+export function MessageInput({
+  chatId,
+  uid,
+  participantIds,
+  disabled,
+  replyingTo,
+  onCancelReply,
+  senderNames,
+  editingMessage,
+  onCancelEdit,
+}: MessageInputProps) {
   const [text, setText] = useState("");
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const setTyping = useTypingPublisher(chatId, uid);
   const recorder = useVoiceRecorder();
+
+  useEffect(() => {
+    if (editingMessage) {
+      setText(editingMessage.content ?? "");
+      textareaRef.current?.focus();
+    }
+  }, [editingMessage]);
 
   async function handleSendText() {
     const content = text.trim();
     if (!content) return;
+
+    if (editingMessage) {
+      setText("");
+      onCancelEdit();
+      await editMessage(chatId, editingMessage.id, content);
+      return;
+    }
+
     setText("");
     setTyping(null);
-    await sendMessage({ chatId, senderId: uid, participantIds, type: "text", content });
+    await sendMessage({
+      chatId,
+      senderId: uid,
+      participantIds,
+      type: "text",
+      content,
+      replyTo: replyingTo
+        ? {
+            messageId: replyingTo.id,
+            senderName: senderNames[replyingTo.senderId] ?? "Kimdir",
+            textPreview: messagePreviewText(replyingTo).slice(0, 120),
+          }
+        : undefined,
+    });
+    onCancelReply();
   }
 
   async function handleFile(file: File | undefined) {
@@ -115,87 +163,128 @@ export function MessageInput({ chatId, uid, participantIds, disabled }: MessageI
   }
 
   return (
-    <div className="flex items-end gap-2 border-t border-border px-3 py-3">
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*,video/*"
-        className="hidden"
-        onChange={(e) => handleFile(e.target.files?.[0])}
-      />
-      <button
-        type="button"
-        onClick={() => fileInputRef.current?.click()}
-        aria-label="Fayl biriktirish"
-        disabled={uploadProgress !== null}
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-text-muted hover:bg-primary-soft disabled:opacity-50"
-      >
-        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
-          <path
-            d="M8 12l6.5-6.5a3.5 3.5 0 015 5L11 18a5 5 0 01-7-7l7.5-7.5"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-          />
-        </svg>
-      </button>
-
-      <textarea
-        value={text}
-        rows={1}
-        placeholder="Xabar yozing..."
-        onChange={(e) => {
-          setText(e.target.value);
-          setTyping(e.target.value.trim() ? "text" : null);
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            void handleSendText();
-          }
-        }}
-        className="max-h-32 flex-1 resize-none rounded-2xl border border-border bg-surface px-4 py-2.5 text-sm text-text placeholder:text-text-muted focus-visible:border-primary"
-      />
-
-      {uploadProgress !== null && (
-        <span className="text-xs text-text-muted">{Math.round(uploadProgress)}%</span>
+    <div className="border-t border-border" style={{ paddingBottom: "var(--safe-bottom)" }}>
+      {editingMessage ? (
+        <div className="flex items-center gap-2 border-b border-border bg-surface-raised px-3 py-1.5 text-xs">
+          <span className="flex-1 font-medium text-primary">Xabarni tahrirlash</span>
+          <button
+            type="button"
+            onClick={() => {
+              onCancelEdit();
+              setText("");
+            }}
+            aria-label="Tahrirlashni bekor qilish"
+            className="text-text-muted hover:text-text"
+          >
+            <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
+      ) : (
+        replyingTo && (
+          <div className="border-b border-border px-3 py-1.5">
+            <ReplyQuote
+              senderName={senderNames[replyingTo.senderId] ?? "Kimdir"}
+              textPreview={messagePreviewText(replyingTo)}
+              onCancel={onCancelReply}
+            />
+          </div>
+        )
       )}
 
-      {text.trim() ? (
-        <Button size="icon" onClick={handleSendText} aria-label="Yuborish">
-          <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
-            <path d="M4 12l16-7-6 16-3-7-7-2z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-          </svg>
-        </Button>
-      ) : (
+      <div className="flex items-end gap-2 px-3 py-3">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*,video/*"
+          className="hidden"
+          onChange={(e) => handleFile(e.target.files?.[0])}
+        />
         <button
           type="button"
-          onMouseDown={handleRecordStart}
-          onMouseUp={handleRecordStop}
-          onMouseLeave={() => recorder.recording && handleRecordStop()}
-          onTouchStart={(e) => {
-            e.preventDefault();
-            void handleRecordStart();
-          }}
-          onTouchEnd={(e) => {
-            e.preventDefault();
-            void handleRecordStop();
-          }}
-          aria-label="Ovozli xabar yozish uchun bosib turing"
-          className={cn(
-            "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-white",
-          )}
+          onClick={() => fileInputRef.current?.click()}
+          aria-label="Fayl biriktirish"
+          disabled={uploadProgress !== null}
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-muted hover:bg-surface-raised disabled:opacity-50"
         >
           <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
             <path
-              d="M12 15a3 3 0 003-3V6a3 3 0 10-6 0v6a3 3 0 003 3zm5-3a5 5 0 01-10 0M12 18v2"
+              d="M8 12l6.5-6.5a3.5 3.5 0 015 5L11 18a5 5 0 01-7-7l7.5-7.5"
               stroke="currentColor"
               strokeWidth="1.6"
               strokeLinecap="round"
             />
           </svg>
         </button>
-      )}
+
+        <textarea
+          ref={textareaRef}
+          value={text}
+          rows={1}
+          placeholder="Xabar yozing..."
+          onChange={(e) => {
+            setText(e.target.value);
+            setTyping(e.target.value.trim() ? "text" : null);
+          }}
+          onFocus={() => {
+            setTimeout(() => textareaRef.current?.scrollIntoView({ block: "end", behavior: "smooth" }), 300);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              void handleSendText();
+            }
+          }}
+          className="max-h-32 min-h-11 flex-1 resize-none rounded-2xl border border-border bg-surface px-4 py-2.5 text-sm text-text placeholder:text-text-muted focus-visible:border-primary"
+        />
+
+        {uploadProgress !== null && (
+          <span className="text-xs text-text-muted">{Math.round(uploadProgress)}%</span>
+        )}
+
+        {text.trim() ? (
+          <Button size="icon" onClick={handleSendText} aria-label={editingMessage ? "Saqlash" : "Yuborish"}>
+            {editingMessage ? (
+              <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+                <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+                <path d="M4 12l16-7-6 16-3-7-7-2z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+              </svg>
+            )}
+          </Button>
+        ) : (
+          <button
+            type="button"
+            onMouseDown={handleRecordStart}
+            onMouseUp={handleRecordStop}
+            onMouseLeave={() => recorder.recording && handleRecordStop()}
+            onTouchStart={(e) => {
+              e.preventDefault();
+              void handleRecordStart();
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              void handleRecordStop();
+            }}
+            aria-label="Ovozli xabar yozish uchun bosib turing"
+            className={cn(
+              "flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-white",
+            )}
+          >
+            <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+              <path
+                d="M12 15a3 3 0 003-3V6a3 3 0 10-6 0v6a3 3 0 003 3zm5-3a5 5 0 01-10 0M12 18v2"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+        )}
+      </div>
     </div>
   );
 }

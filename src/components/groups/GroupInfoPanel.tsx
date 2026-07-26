@@ -20,7 +20,14 @@ import { groupPhotoPath, uploadWithProgress } from "@/lib/firebase/storage";
 import type { Chat } from "@/types/chat";
 import type { UserProfile } from "@/types/user";
 
-export function GroupInfoPanel({ chat, uid }: { chat: Chat; uid: string }) {
+interface GroupInfoPanelProps {
+  chat: Chat;
+  uid: string;
+  onDeleted?: () => void;
+  onLeft?: () => void;
+}
+
+export function GroupInfoPanel({ chat, uid, onDeleted, onLeft }: GroupInfoPanelProps) {
   const router = useRouter();
   const profiles = useParticipantProfiles(chat.participantIds);
   const [name, setName] = useState(chat.groupName ?? "");
@@ -62,12 +69,14 @@ export function GroupInfoPanel({ chat, uid }: { chat: Chat; uid: string }) {
 
   async function handleLeave() {
     await leaveGroup(chat.id, uid);
-    router.push("/");
+    if (onLeft) onLeft();
+    else router.push("/");
   }
 
   async function handleDelete() {
     await deleteGroup(chat.id);
-    router.push("/");
+    if (onDeleted) onDeleted();
+    else router.push("/");
   }
 
   return (

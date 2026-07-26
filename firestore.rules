@@ -65,6 +65,9 @@ service cloud.firestore {
       function onlyMessagingFieldsChanged() {
         return affectedKeys().hasOnly(['lastMessage', 'typingStatus', 'unreadCounts']);
       }
+      function onlyPinChanged() {
+        return affectedKeys().hasOnly(['pinnedMessageId']);
+      }
       function onlyGroupSettingsChanged() {
         return affectedKeys().hasOnly(['groupName', 'groupPhotoURL', 'onlyAdminsCanPost']);
       }
@@ -95,6 +98,8 @@ service cloud.firestore {
         || (onlyGroupSettingsChanged() && isAdmin())
         || (onlyMembershipChanged() && isAdmin())
         || isSelfLeaving()
+        // Pinning: any participant in a direct chat, admins only in a group.
+        || (onlyPinChanged() && (resource.data.type == 'direct' || isAdmin()))
       );
 
       allow delete: if isOwner();
@@ -121,10 +126,17 @@ service cloud.firestore {
           && (!chatData().onlyAdminsCanPost || isChatAdmin());
 
         // Status/read receipts (any participant), hiding-for-self (any participant),
-        // or the original sender performing an "everyone" delete (content -> system).
+        // the original sender editing their own text message (content + edit
+        // markers), or the original sender performing an "everyone" delete
+        // (content -> system).
         allow update: if isChatParticipant() && (
           msgAffectedKeys().hasOnly(['status', 'readBy'])
           || msgAffectedKeys().hasOnly(['deletedFor'])
+          || (
+            msgAffectedKeys().hasOnly(['content', 'isEdited', 'editedAt'])
+            && resource.data.senderId == request.auth.uid
+            && resource.data.type == 'text'
+          )
           || (
             msgAffectedKeys().hasOnly(['type', 'content', 'mediaURL'])
             && resource.data.senderId == request.auth.uid

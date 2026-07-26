@@ -63,7 +63,7 @@ export function ChatListItem({ chat }: { chat: Chat }) {
             <span className="truncate">{preview}</span>
           </span>
           {unread > 0 && (
-            <span className="chatly-ink-drop flex h-5 min-w-5 shrink-0 items-center justify-center bg-accent px-1.5 text-xs font-semibold text-white">
+            <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-accent px-1.5 text-xs font-semibold text-white">
               {unread > 99 ? "99+" : unread}
             </span>
           )}

@@ -4,6 +4,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { MobileTabBar } from "@/components/chat/MobileTabBar";
 import { Sidebar } from "@/components/chat/Sidebar";
+import { ModalHost } from "@/components/ModalHost";
 import { Spinner } from "@/components/ui/Spinner";
 import { useAuthStore } from "@/store/useAuthStore";
 import { cn } from "@/lib/utils/cn";
@@ -53,6 +54,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
         </main>
       </div>
       {showTabBar && <MobileTabBar />}
+      <ModalHost />
     </div>
   );
 }

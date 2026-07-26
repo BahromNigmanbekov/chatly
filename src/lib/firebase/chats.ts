@@ -1,5 +1,6 @@
 import { addDoc, getDocs, query, serverTimestamp, where } from "firebase/firestore";
 import { chatsCol } from "@/lib/firebase/firestore";
+import { sendMessage } from "@/lib/firebase/messages";
 
 /** Finds an existing 1:1 chat between the two users, or creates one. Returns the chat id. */
 export async function getOrCreateDirectChat(uidA: string, uidB: string): Promise<string> {
@@ -24,6 +25,7 @@ export async function getOrCreateDirectChat(uidA: string, uidB: string): Promise
     lastMessage: null,
     typingStatus: {},
     unreadCounts: { [uidA]: 0, [uidB]: 0 },
+    pinnedMessageId: null,
     createdAt: serverTimestamp(),
   });
   return ref.id;
@@ -31,6 +33,7 @@ export async function getOrCreateDirectChat(uidA: string, uidB: string): Promise
 
 export async function createGroupChat(params: {
   ownerId: string;
+  ownerName: string;
   memberIds: string[];
   groupName: string;
   groupPhotoURL?: string | null;
@@ -50,7 +53,23 @@ export async function createGroupChat(params: {
     lastMessage: null,
     typingStatus: {},
     unreadCounts,
+    pinnedMessageId: null,
     createdAt: serverTimestamp(),
   });
+
+  // Rich-content card example: announces the new group instead of a plain system line.
+  await sendMessage({
+    chatId: ref.id,
+    senderId: params.ownerId,
+    participantIds,
+    type: "card",
+    card: {
+      icon: "group",
+      title: params.groupName,
+      subtitle: `${params.ownerName} guruhni yaratdi`,
+      actionLabel: "Guruh haqida",
+    },
+  });
+
   return ref.id;
 }

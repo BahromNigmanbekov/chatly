@@ -1,64 +1,67 @@
 @import "tailwindcss";
 
 :root {
-  --color-bg: #f6f4f1;
+  --color-bg: #ffffff;
   --color-surface: #ffffff;
-  --color-surface-raised: #ffffff;
-  --color-border: #e7e2db;
-  --color-text: #1c2033;
-  --color-text-muted: #6b6f80;
-  --color-primary: #1f2b52;
-  --color-primary-hover: #16203e;
-  --color-primary-soft: #e7eaf3;
-  --color-accent: #e2963a;
-  --color-accent-soft: #fbebd3;
-  --color-danger: #c1443b;
-  --color-online: #3fae72;
-  --color-bubble-mine: #1f2b52;
-  --color-bubble-mine-text: #f5f6fa;
-  --color-bubble-theirs: #ffffff;
-  --color-bubble-theirs-text: #1c2033;
+  --color-surface-raised: #f2f2f7;
+  --color-border: #e5e5ea;
+  --color-text: #1c1c1e;
+  --color-text-muted: #8e8e93;
+  --color-primary: #0a6cff;
+  --color-primary-hover: #0857d1;
+  --color-primary-soft: #e8f1ff;
+  --color-accent: #ff3b30;
+  --color-accent-soft: #ffe5e3;
+  --color-danger: #d92d20;
+  --color-online: #34c759;
+  --color-tab-active: #1c1c1e;
+  --color-bubble-mine: #0a6cff;
+  --color-bubble-mine-text: #ffffff;
+  --color-bubble-theirs: #f0f0f2;
+  --color-bubble-theirs-text: #1c1c1e;
 }
 
 :root[data-theme="dark"] {
-  --color-bg: #12182b;
-  --color-surface: #1b2340;
-  --color-surface-raised: #212a4a;
-  --color-border: #2e385c;
-  --color-text: #eceae4;
-  --color-text-muted: #9aa0b4;
-  --color-primary: #7c8fe0;
-  --color-primary-hover: #93a3e8;
-  --color-primary-soft: #263259;
-  --color-accent: #f0b15e;
-  --color-accent-soft: #3a2e1a;
-  --color-danger: #e57b73;
-  --color-online: #59cb8d;
-  --color-bubble-mine: #33427a;
-  --color-bubble-mine-text: #f5f6fa;
-  --color-bubble-theirs: #212a4a;
-  --color-bubble-theirs-text: #eceae4;
+  --color-bg: #000000;
+  --color-surface: #1c1c1e;
+  --color-surface-raised: #2c2c2e;
+  --color-border: #38383a;
+  --color-text: #f2f2f7;
+  --color-text-muted: #98989d;
+  --color-primary: #0a84ff;
+  --color-primary-hover: #3d9bff;
+  --color-primary-soft: #10243d;
+  --color-accent: #ff453a;
+  --color-accent-soft: #3a1613;
+  --color-danger: #ff6961;
+  --color-online: #30d158;
+  --color-tab-active: #ffffff;
+  --color-bubble-mine: #0a84ff;
+  --color-bubble-mine-text: #ffffff;
+  --color-bubble-theirs: #262629;
+  --color-bubble-theirs-text: #f2f2f7;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --color-bg: #12182b;
-    --color-surface: #1b2340;
-    --color-surface-raised: #212a4a;
-    --color-border: #2e385c;
-    --color-text: #eceae4;
-    --color-text-muted: #9aa0b4;
-    --color-primary: #7c8fe0;
-    --color-primary-hover: #93a3e8;
-    --color-primary-soft: #263259;
-    --color-accent: #f0b15e;
-    --color-accent-soft: #3a2e1a;
-    --color-danger: #e57b73;
-    --color-online: #59cb8d;
-    --color-bubble-mine: #33427a;
-    --color-bubble-mine-text: #f5f6fa;
-    --color-bubble-theirs: #212a4a;
-    --color-bubble-theirs-text: #eceae4;
+    --color-bg: #000000;
+    --color-surface: #1c1c1e;
+    --color-surface-raised: #2c2c2e;
+    --color-border: #38383a;
+    --color-text: #f2f2f7;
+    --color-text-muted: #98989d;
+    --color-primary: #0a84ff;
+    --color-primary-hover: #3d9bff;
+    --color-primary-soft: #10243d;
+    --color-accent: #ff453a;
+    --color-accent-soft: #3a1613;
+    --color-danger: #ff6961;
+    --color-online: #30d158;
+    --color-tab-active: #ffffff;
+    --color-bubble-mine: #0a84ff;
+    --color-bubble-mine-text: #ffffff;
+    --color-bubble-theirs: #262629;
+    --color-bubble-theirs-text: #f2f2f7;
   }
 }
 
@@ -76,12 +79,13 @@
   --color-accent-soft: var(--color-accent-soft);
   --color-danger: var(--color-danger);
   --color-online: var(--color-online);
+  --color-tab-active: var(--color-tab-active);
   --color-bubble-mine: var(--color-bubble-mine);
   --color-bubble-mine-text: var(--color-bubble-mine-text);
   --color-bubble-theirs: var(--color-bubble-theirs);
   --color-bubble-theirs-text: var(--color-bubble-theirs-text);
-  --font-sans: var(--font-public-sans);
-  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-inter);
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
@@ -99,16 +103,6 @@ body {
 
 ::selection {
   background: var(--color-primary-soft);
-}
-
-/* Signature shape: "ink-drop" — a rounded square with one corner pulled to a
-   point. Used consistently for unread badges, the pinned-message rail, and
-   the tail corner of your own message bubbles. */
-.chatly-ink-drop {
-  border-radius: 999px 999px 999px 4px;
-}
-.chatly-ink-drop-mirror {
-  border-radius: 999px 999px 4px 999px;
 }
 
 @media (prefers-reduced-motion: no-preference) {

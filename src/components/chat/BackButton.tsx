@@ -10,7 +10,7 @@ export function BackButton({ href = "/" }: { href?: string }) {
       type="button"
       onClick={() => router.push(href)}
       aria-label="Orqaga"
-      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-primary-soft md:hidden"
+      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full hover:bg-primary-soft md:hidden"
     >
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 text-text" aria-hidden>
         <path

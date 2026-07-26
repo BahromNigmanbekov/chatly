@@ -1,17 +1,20 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { UsernameField } from "@/components/auth/UsernameField";
-import { changeUsername, logoutUser, updateProfileFields } from "@/lib/firebase/auth";
+import { changeUsername, updateProfileFields } from "@/lib/firebase/auth";
 import { friendlyErrorMessage } from "@/lib/utils/firebaseError";
 import { isValidUsername, normalizeUsername } from "@/lib/utils/username";
 import type { UserProfile } from "@/types/user";
 
-export function ProfileForm({ profile }: { profile: UserProfile }) {
-  const router = useRouter();
+interface ProfileFormProps {
+  profile: UserProfile;
+  onSaved?: () => void;
+}
+
+export function ProfileForm({ profile, onSaved }: ProfileFormProps) {
   const [displayName, setDisplayName] = useState(profile.displayName);
   const [username, setUsername] = useState(profile.username);
   const [bio, setBio] = useState(profile.bio);
@@ -34,16 +37,12 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
       }
       await updateProfileFields(profile.uid, { displayName: displayName.trim(), bio: bio.trim() });
       setSaved(true);
+      onSaved?.();
     } catch (err) {
       setError(friendlyErrorMessage(err));
     } finally {
       setSaving(false);
     }
-  }
-
-  async function handleLogout() {
-    await logoutUser();
-    router.push("/login");
   }
 
   return (
@@ -73,9 +72,6 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
       {saved && !error && <p className="text-sm text-online">Saqlandi ✓</p>}
       <Button type="submit" size="lg" disabled={!canSave} className="w-full">
         {saving ? "Saqlanmoqda..." : "Saqlash"}
-      </Button>
-      <Button type="button" variant="secondary" onClick={handleLogout} className="w-full">
-        Chiqish
       </Button>
     </form>
   );

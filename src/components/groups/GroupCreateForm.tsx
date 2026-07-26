@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
@@ -11,9 +10,9 @@ import { groupPhotoPath, uploadWithProgress } from "@/lib/firebase/storage";
 import { useAuthStore } from "@/store/useAuthStore";
 import type { UserProfile } from "@/types/user";
 
-export function GroupCreateForm() {
-  const router = useRouter();
+export function GroupCreateForm({ onCreated }: { onCreated: (chatId: string) => void }) {
   const uid = useAuthStore((s) => s.firebaseUser?.uid);
+  const profile = useAuthStore((s) => s.profile);
   const [name, setName] = useState("");
   const [members, setMembers] = useState<UserProfile[]>([]);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -42,11 +41,12 @@ export function GroupCreateForm() {
       }
       const chatId = await createGroupChat({
         ownerId: uid,
+        ownerName: profile?.displayName ?? "Kimdir",
         memberIds: members.map((m) => m.uid),
         groupName: name.trim(),
         groupPhotoURL,
       });
-      router.push(`/chats/${chatId}`);
+      onCreated(chatId);
     } catch {
       setError("Guruh yaratishda xatolik yuz berdi");
       setCreating(false);
@@ -54,7 +54,7 @@ export function GroupCreateForm() {
   }
 
   return (
-    <div className="flex w-full max-w-md flex-col gap-4 px-4 py-6">
+    <div className="flex w-full flex-col gap-4 px-4 py-6">
       <div className="flex flex-col items-center gap-2">
         <button type="button" onClick={() => fileInputRef.current?.click()}>
           {photoPreview ? (

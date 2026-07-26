@@ -35,7 +35,7 @@ export function MobileTabBar() {
         href="/"
         className={cn(
           "flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs font-medium",
-          isChats ? "text-primary" : "text-text-muted",
+          isChats ? "text-tab-active" : "text-text-muted",
         )}
         aria-current={isChats ? "page" : undefined}
       >
@@ -46,7 +46,7 @@ export function MobileTabBar() {
         href="/profile"
         className={cn(
           "flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs font-medium",
-          isProfile ? "text-primary" : "text-text-muted",
+          isProfile ? "text-tab-active" : "text-text-muted",
         )}
         aria-current={isProfile ? "page" : undefined}
       >
@@ -54,7 +54,7 @@ export function MobileTabBar() {
           name={profile?.displayName ?? "?"}
           photoURL={profile?.photoURL}
           size="sm"
-          className={cn(isProfile && "ring-2 ring-primary")}
+          className={cn(isProfile && "ring-2 ring-tab-active")}
         />
         Profil
       </Link>

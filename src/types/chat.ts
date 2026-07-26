@@ -29,5 +29,6 @@ export interface Chat {
   lastMessage: LastMessagePreview | null;
   typingStatus: Record<string, TypingEntry>;
   unreadCounts: Record<string, number>;
+  pinnedMessageId: string | null;
   createdAt: Timestamp | null;
 }
