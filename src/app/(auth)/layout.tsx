@@ -29,7 +29,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-8 px-4 py-12">
+    <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-8 overflow-y-auto px-4 py-12">
       <div className="flex flex-col items-center gap-1">
         <span className="font-display text-2xl font-bold text-primary">Chatly</span>
         <span className="text-sm text-text-muted">@username orqali suhbatlashing</span>

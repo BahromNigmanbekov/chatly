@@ -42,20 +42,21 @@ export default function ProfilePage() {
   const comingSoon = () => showToast("Tez orada qo'shiladi");
 
   return (
-    <div className="flex flex-1 flex-col overflow-y-auto">
-      <div className="border-b border-border px-4 py-3.5 text-center">
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="shrink-0 border-b border-border px-4 py-3.5 text-center">
         <span className="font-display text-lg font-semibold text-text">Profil</span>
       </div>
 
-      <div className="flex flex-col items-center gap-2 py-8">
-        <Avatar name={profile.displayName} photoURL={profile.photoURL} size="xl" />
-        <div className="text-center">
-          <div className="text-lg font-semibold text-text">{profile.displayName}</div>
-          <div className="text-sm text-text-muted">@{profile.username}</div>
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+        <div className="flex flex-col items-center gap-2 py-8">
+          <Avatar name={profile.displayName} photoURL={profile.photoURL} size="xl" />
+          <div className="text-center">
+            <div className="text-lg font-semibold text-text">{profile.displayName}</div>
+            <div className="text-sm text-text-muted">@{profile.username}</div>
+          </div>
         </div>
-      </div>
 
-      <div className="flex flex-col gap-6 px-4 pb-10">
+        <div className="flex flex-col gap-6 px-4 pb-10">
         <div>
           <div className="px-4 pb-1.5 text-xs font-semibold uppercase tracking-wide text-text-muted">Hisob</div>
           <div className="flex flex-col divide-y divide-border rounded-2xl border border-border bg-surface">
@@ -105,13 +106,14 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="flex flex-col rounded-2xl border border-border bg-surface">
-          <ProfileMenuRow
-            icon={<Icon path="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />}
-            label="Chiqish"
-            danger
-            onClick={handleLogout}
-          />
+          <div className="flex flex-col rounded-2xl border border-border bg-surface">
+            <ProfileMenuRow
+              icon={<Icon path="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />}
+              label="Chiqish"
+              danger
+              onClick={handleLogout}
+            />
+          </div>
         </div>
       </div>
     </div>

@@ -80,7 +80,7 @@ export function GroupInfoPanel({ chat, uid, onDeleted, onLeft }: GroupInfoPanelP
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-4 py-6">
+    <div className="flex flex-col gap-6 px-4 py-6">
       <div className="flex flex-col items-center gap-2">
         <button type="button" onClick={() => (isAdmin ? fileInputRef.current?.click() : undefined)}>
           <Avatar name={chat.groupName ?? "Guruh"} photoURL={chat.groupPhotoURL} size="xl" />

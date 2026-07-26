@@ -31,8 +31,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="uz" className={`${inter.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col font-sans bg-bg text-text">
+    <html lang="uz" className={`${inter.variable} h-dvh overflow-hidden antialiased`}>
+      <body className="flex h-full flex-col overflow-hidden font-sans bg-bg text-text">
         <ThemeProvider>
           <AuthProvider>{children}</AuthProvider>
           <ToastHost />

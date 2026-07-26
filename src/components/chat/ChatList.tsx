@@ -44,7 +44,7 @@ export function ChatList() {
   }
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <ChatListFilterBar
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
@@ -57,7 +57,7 @@ export function ChatList() {
           description="Boshqa nom bilan qidirib ko'ring yoki filtrni almashtiring."
         />
       ) : (
-        <div className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-2">
+        <div className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto p-2">
           {visibleChats.map((chat) => (
             <ChatListItem key={chat.id} chat={chat} />
           ))}

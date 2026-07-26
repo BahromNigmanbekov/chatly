@@ -98,7 +98,7 @@ export function MessageList({ chat, uid, senderNames, onReply, onEdit }: Message
 
   if (loading) {
     return (
-      <div className="flex flex-1 items-center justify-center">
+      <div className="flex min-h-0 flex-1 items-center justify-center">
         <Spinner />
       </div>
     );
@@ -106,7 +106,7 @@ export function MessageList({ chat, uid, senderNames, onReply, onEdit }: Message
 
   return (
     <>
-      <div ref={scrollRef} onScroll={handleScroll} className="flex flex-1 flex-col gap-1.5 overflow-y-auto px-3 py-4 sm:px-6">
+      <div ref={scrollRef} onScroll={handleScroll} className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto px-3 py-4 sm:px-6">
         {loadingMore && (
           <div className="flex justify-center py-2">
             <Spinner className="h-4 w-4" />
