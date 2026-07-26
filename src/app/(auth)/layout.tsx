@@ -7,12 +7,18 @@ import { Spinner } from "@/components/ui/Spinner";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const firebaseUser = useAuthStore((s) => s.firebaseUser);
+  const profile = useAuthStore((s) => s.profile);
   const initializing = useAuthStore((s) => s.initializing);
 
   useEffect(() => {
-    if (!initializing && firebaseUser) router.replace("/");
-  }, [initializing, firebaseUser, router]);
+    // Gate on `profile` (Firestore), not just `firebaseUser` (Auth). Auth flips
+    // to signed-in the instant createUserWithEmailAndPassword resolves — well
+    // before the username-claim transaction that follows it has run. Redirecting
+    // on the raw auth state would yank a still-registering user off this page
+    // (and hide any registration error) before RegisterForm gets a chance to
+    // handle success/failure itself.
+    if (!initializing && profile) router.replace("/");
+  }, [initializing, profile, router]);
 
   if (initializing) {
     return (
