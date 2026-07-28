@@ -1,18 +1,39 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useRef } from "react";
 import { Avatar } from "@/components/ui/Avatar";
 import { CallControlButton } from "@/components/calls/CallControlButton";
 import { useCallTimer } from "@/hooks/useCallTimer";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useCallStore } from "@/store/useCallStore";
 
-function useStreamRef(stream: MediaStream | null) {
-  const ref = useRef<HTMLVideoElement>(null);
-  useEffect(() => {
-    if (ref.current) ref.current.srcObject = stream;
-  }, [stream]);
-  return ref;
+/**
+ * Attaches `stream` to whatever media element this ref is passed to, via a
+ * *callback* ref rather than useRef+useEffect. A plain useEffect keyed on
+ * `[stream]` only re-runs when the stream value itself changes — if the
+ * element mounts *after* the stream was already set (e.g. the caller's local
+ * video, which isn't in the DOM yet while still ringing), the effect never
+ * fires again and srcObject is never attached. A callback ref runs exactly
+ * when the element mounts, using whatever stream is current at that moment,
+ * so it's correct regardless of which happens first.
+ */
+function useStreamRef<T extends HTMLMediaElement>(stream: MediaStream | null) {
+  const elRef = useRef<T | null>(null);
+  return useCallback(
+    (node: T | null) => {
+      elRef.current = node;
+      if (node) {
+        node.srcObject = stream;
+        console.log(
+          "[WebRTC] attached stream to",
+          node.tagName,
+          "tracks:",
+          stream?.getTracks().map((t) => t.kind) ?? null,
+        );
+      }
+    },
+    [stream],
+  );
 }
 
 export function ActiveCallScreen() {
@@ -31,8 +52,9 @@ export function ActiveCallScreen() {
   const switchCamera = useCallStore((s) => s.switchCamera);
 
   const { profile } = useUserProfile(peerId);
-  const localVideoRef = useStreamRef(localStream);
-  const remoteVideoRef = useStreamRef(remoteStream);
+  const localVideoRef = useStreamRef<HTMLVideoElement>(localStream);
+  const remoteVideoRef = useStreamRef<HTMLVideoElement>(remoteStream);
+  const remoteAudioRef = useStreamRef<HTMLAudioElement>(remoteStream);
   const duration = useCallTimer(callStartedAt);
 
   const isVideo = callType === "video";
@@ -41,9 +63,17 @@ export function ActiveCallScreen() {
 
   return (
     <div className="chatly-overlay-enter fixed inset-0 z-[70] flex flex-col bg-black text-white">
+      {/*
+        Always present regardless of call type or ringing state: this is the
+        only element that plays the peer's voice on an audio-only call, and a
+        safety net for video calls too (video below is muted to avoid double
+        playback, since this element already carries that stream's audio).
+      */}
+      <audio ref={remoteAudioRef} autoPlay />
+
       <div className="relative flex flex-1 items-center justify-center overflow-hidden">
         {isVideo && remoteStream && !isRinging ? (
-          <video ref={remoteVideoRef} autoPlay playsInline className="h-full w-full object-cover" />
+          <video ref={remoteVideoRef} autoPlay playsInline muted className="h-full w-full object-cover" />
         ) : (
           <div className="flex flex-col items-center gap-3">
             <Avatar name={profile?.displayName ?? "..."} photoURL={profile?.photoURL} size="xl" />

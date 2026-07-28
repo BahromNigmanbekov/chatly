@@ -13,11 +13,19 @@ export class MediaAccessError extends Error {
 
 export async function getLocalMedia(type: CallType, facingMode: "user" | "environment" = "user") {
   try {
-    return await navigator.mediaDevices.getUserMedia({
+    console.log("[WebRTC] requesting getUserMedia", { type, facingMode });
+    const stream = await navigator.mediaDevices.getUserMedia({
       audio: true,
       video: type === "video" ? { facingMode } : false,
     });
+    console.log(
+      "[WebRTC] getUserMedia resolved",
+      "audio tracks:", stream.getAudioTracks().map((t) => ({ label: t.label, enabled: t.enabled, readyState: t.readyState })),
+      "video tracks:", stream.getVideoTracks().map((t) => ({ label: t.label, enabled: t.enabled, readyState: t.readyState })),
+    );
+    return stream;
   } catch (err) {
+    console.error("[WebRTC] getUserMedia rejected", err);
     if (err instanceof DOMException) {
       if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
         throw new MediaAccessError(

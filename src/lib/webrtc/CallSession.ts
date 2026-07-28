@@ -51,11 +51,20 @@ export class CallSession {
 
     const remoteStream = new MediaStream();
     this.pc.ontrack = (e) => {
+      console.log("[WebRTC]", role, "ontrack fired:", e.track.kind, "streams:", e.streams.length);
       e.streams[0]?.getTracks().forEach((t) => remoteStream.addTrack(t));
+      console.log("[WebRTC]", role, "remoteStream now has tracks:", remoteStream.getTracks().map((t) => t.kind));
       this.callbacks.onRemoteStream(remoteStream);
     };
     this.pc.onconnectionstatechange = () => {
+      console.log("[WebRTC]", role, "connectionState ->", this.pc.connectionState);
       this.callbacks.onConnectionStateChange(this.pc.connectionState);
+    };
+    this.pc.oniceconnectionstatechange = () => {
+      console.log("[WebRTC]", role, "iceConnectionState ->", this.pc.iceConnectionState);
+    };
+    this.pc.onicegatheringstatechange = () => {
+      console.log("[WebRTC]", role, "iceGatheringState ->", this.pc.iceGatheringState);
     };
   }
 
