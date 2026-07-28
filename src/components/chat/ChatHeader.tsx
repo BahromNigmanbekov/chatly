@@ -6,11 +6,13 @@ import { BackButton } from "@/components/chat/BackButton";
 import { PinnedMessageBar } from "@/components/chat/PinnedMessageBar";
 import { OnlineDot } from "@/components/presence/OnlineDot";
 import { TypingWave } from "@/components/presence/TypingWave";
-import { useChatDisplay } from "@/hooks/useChatDisplay";
+import { otherParticipantId, useChatDisplay } from "@/hooks/useChatDisplay";
 import { isTypingEntryFresh } from "@/hooks/useTypingStatus";
 import { formatLastSeen } from "@/lib/utils/formatTime";
+import { useCallStore } from "@/store/useCallStore";
 import { useModalStore } from "@/store/useModalStore";
 import type { Chat } from "@/types/chat";
+import type { CallType } from "@/types/call";
 import type { UserProfile } from "@/types/user";
 
 interface ChatHeaderProps {
@@ -19,14 +21,14 @@ interface ChatHeaderProps {
   participantProfiles: Record<string, UserProfile>;
 }
 
-function CallButton({ kind }: { kind: "audio" | "video" }) {
+function CallButton({ kind, disabled, onClick }: { kind: "audio" | "video"; disabled: boolean; onClick: () => void }) {
   return (
     <button
       type="button"
-      title="Tez orada qo'shiladi"
-      onClick={() => undefined}
+      disabled={disabled}
+      onClick={onClick}
       aria-label={kind === "audio" ? "Ovozli qo'ng'iroq" : "Video qo'ng'iroq"}
-      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-text-muted opacity-50 hover:bg-surface-raised"
+      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-muted hover:bg-surface-raised disabled:opacity-40"
     >
       {kind === "audio" ? (
         <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
@@ -54,7 +56,16 @@ function CallButton({ kind }: { kind: "audio" | "video" }) {
 export function ChatHeader({ chat, uid, participantProfiles }: ChatHeaderProps) {
   const { name, photoURL, presence } = useChatDisplay(chat, uid);
   const setGroupSettingsChatId = useModalStore((s) => s.setGroupSettingsChatId);
+  const startCall = useCallStore((s) => s.startCall);
+  const callPhase = useCallStore((s) => s.phase);
   const [, forceTick] = useState(0);
+
+  const peerId = chat.type === "direct" ? otherParticipantId(chat, uid) : null;
+
+  function handleStartCall(type: CallType) {
+    if (!peerId || callPhase !== "idle") return;
+    void startCall(chat.id, uid, peerId, type);
+  }
 
   useEffect(() => {
     const interval = setInterval(() => forceTick((n) => n + 1), 1000);
@@ -127,8 +138,12 @@ export function ChatHeader({ chat, uid, participantProfiles }: ChatHeaderProps) 
         ) : (
           <div className="min-w-0 flex-1">{info}</div>
         )}
-        <CallButton kind="audio" />
-        <CallButton kind="video" />
+        {chat.type === "direct" && (
+          <>
+            <CallButton kind="audio" disabled={callPhase !== "idle"} onClick={() => handleStartCall("audio")} />
+            <CallButton kind="video" disabled={callPhase !== "idle"} onClick={() => handleStartCall("video")} />
+          </>
+        )}
       </div>
       {chat.pinnedMessageId && (
         <PinnedMessageBar

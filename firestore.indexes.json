@@ -15,6 +15,14 @@
         { "fieldPath": "type", "order": "ASCENDING" },
         { "fieldPath": "participantIds", "arrayConfig": "CONTAINS" }
       ]
+    },
+    {
+      "collectionGroup": "calls",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "calleeId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

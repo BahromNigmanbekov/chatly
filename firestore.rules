@@ -15,6 +15,16 @@ service cloud.firestore {
       return request.resource.data.diff(resource.data).affectedKeys();
     }
 
+    // ---- calls (collection-group access for the global incoming-call
+    // listener) --------------------------------------------------------------
+    // Collection-group queries (collectionGroup(db, 'calls')) are validated
+    // against a recursive-wildcard rule, not the nested exact-path one under
+    // /chats/{chatId} — that nested rule alone governs single-document get()s
+    // and per-chat queries, but the app-wide list query needs this one too.
+    match /{path=**}/calls/{callId} {
+      allow read: if isSignedIn() && request.auth.uid in resource.data.get('participantIds', []);
+    }
+
     // ---- users -----------------------------------------------------------
     match /users/{uid} {
       allow read: if isSignedIn();
@@ -144,6 +154,58 @@ service cloud.firestore {
         );
 
         allow delete: if false;
+      }
+
+      // ---- calls (1-on-1 WebRTC signaling) ------------------------------
+      match /calls/{callId} {
+        // Same array-contains pattern already used for /chats — Firestore can
+        // statically prove a `list` query safe when the rule checks
+        // array-membership on the exact field an `array-contains` filter
+        // constrains, which a plain field-equality OR can't be proven by.
+        // .get(field, default) guards against the rule validator's synthetic
+        // empty-document probe throwing on a direct field access.
+        function isCallParticipant() {
+          return isSignedIn() && request.auth.uid in resource.data.get('participantIds', []);
+        }
+
+        allow read: if isCallParticipant();
+
+        allow create: if isSignedIn()
+          && request.resource.data.callerId == request.auth.uid
+          && request.auth.uid in request.resource.data.participantIds
+          && request.resource.data.participantIds.size() == 2;
+
+        // Both sides need to write here: the caller sets the offer, the callee
+        // sets the answer + flips status to "active", either side can end/decline
+        // it. Field-level diffing isn't worth the complexity for a 2-person call
+        // only the two legitimate participants can ever touch.
+        allow update: if isCallParticipant();
+
+        allow delete: if isCallParticipant();
+
+        match /callerCandidates/{candidateId} {
+          function callData() {
+            return get(/databases/$(database)/documents/chats/$(chatId)/calls/$(callId)).data;
+          }
+          function isParticipant() {
+            return isSignedIn()
+              && (request.auth.uid == callData().get('callerId', null)
+                || request.auth.uid == callData().get('calleeId', null));
+          }
+          allow read, create, delete: if isParticipant();
+        }
+
+        match /calleeCandidates/{candidateId} {
+          function callData() {
+            return get(/databases/$(database)/documents/chats/$(chatId)/calls/$(callId)).data;
+          }
+          function isParticipant() {
+            return isSignedIn()
+              && (request.auth.uid == callData().get('callerId', null)
+                || request.auth.uid == callData().get('calleeId', null));
+          }
+          allow read, create, delete: if isParticipant();
+        }
       }
     }
   }
