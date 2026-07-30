@@ -1,3 +1,4 @@
+import { FiCheck } from "react-icons/fi";
 import { cn } from "@/lib/utils/cn";
 import type { MessageStatus } from "@/types/message";
 
@@ -21,31 +22,12 @@ export function ReadStatusTicks({ status, tone = "onBubble" }: ReadStatusTicksPr
         : "text-white/70";
 
   return (
-    <svg
-      viewBox="0 0 20 12"
-      className={cn("h-3 w-4", colorClass)}
-      aria-label={
-        status === "read" ? "O'qildi" : status === "delivered" ? "Yetkazildi" : "Yuborildi"
-      }
+    <span
+      className={cn("relative inline-flex h-3 shrink-0", showDouble ? "w-4" : "w-3", colorClass)}
+      aria-label={status === "read" ? "O'qildi" : status === "delivered" ? "Yetkazildi" : "Yuborildi"}
     >
-      <path
-        d="M1 6.5L4.5 10L10 3"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      {showDouble && (
-        <path
-          d="M7 6.5L10.5 10L16 3"
-          stroke="currentColor"
-          strokeWidth="1.6"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      )}
-    </svg>
+      <FiCheck className="absolute left-0 h-3 w-3" strokeWidth={2.5} />
+      {showDouble && <FiCheck className="absolute left-1.25 h-3 w-3" strokeWidth={2.5} />}
+    </span>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { FiChevronRight } from "react-icons/fi";
 import { cn } from "@/lib/utils/cn";
 
 interface ProfileMenuRowProps {
@@ -28,11 +29,7 @@ export function ProfileMenuRow({ icon, label, trailing, danger, onClick }: Profi
       </span>
       <span className={cn("flex-1 text-sm font-medium", danger ? "text-danger" : "text-text")}>{label}</span>
       {trailing && <span className="text-sm text-text-muted">{trailing}</span>}
-      {!danger && (
-        <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 shrink-0 text-text-muted" aria-hidden>
-          <path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      )}
+      {!danger && <FiChevronRight className="h-4 w-4 shrink-0 text-text-muted" aria-hidden />}
     </button>
   );
 }

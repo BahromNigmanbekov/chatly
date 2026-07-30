@@ -5,6 +5,7 @@ import { MessageBubble } from "@/components/chat/MessageBubble";
 import { SelectionActionBar } from "@/components/chat/SelectionActionBar";
 import { Spinner } from "@/components/ui/Spinner";
 import { useMessages } from "@/hooks/useMessages";
+import { useVoiceExpirySweep } from "@/hooks/useVoiceExpirySweep";
 import { deleteMessage, markMessagesDelivered, markMessagesRead } from "@/lib/firebase/messages";
 import { useModalStore } from "@/store/useModalStore";
 import type { Chat } from "@/types/chat";
@@ -20,6 +21,7 @@ interface MessageListProps {
 
 export function MessageList({ chat, uid, senderNames, onReply, onEdit }: MessageListProps) {
   const { messages, loading, loadMore, hasMore, loadingMore } = useMessages(chat.id);
+  useVoiceExpirySweep(chat.id, messages);
   const scrollRef = useRef<HTMLDivElement>(null);
   const prevCountRef = useRef(0);
   const [selectionMode, setSelectionMode] = useState(false);

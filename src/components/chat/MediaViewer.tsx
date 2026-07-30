@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { FiX } from "react-icons/fi";
 
 interface MediaViewerProps {
   src: string;
@@ -30,9 +31,7 @@ export function MediaViewer({ src, type, onClose }: MediaViewerProps) {
         aria-label="Yopish"
         className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
       >
-        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
-          <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-        </svg>
+        <FiX className="h-5 w-5" />
       </button>
       {type === "image" ? (
         // eslint-disable-next-line @next/next/no-img-element

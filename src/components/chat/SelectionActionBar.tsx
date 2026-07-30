@@ -1,5 +1,7 @@
 "use client";
 
+import { FiX } from "react-icons/fi";
+
 interface SelectionActionBarProps {
   count: number;
   onForward: () => void;
@@ -19,9 +21,7 @@ export function SelectionActionBar({ count, onForward, onDelete, onCancel }: Sel
         aria-label="Tanlashni bekor qilish"
         className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-muted hover:bg-surface-raised"
       >
-        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
-          <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-        </svg>
+        <FiX className="h-5 w-5" />
       </button>
       <span className="flex-1 text-sm font-medium text-text">{count} ta tanlandi</span>
       <button

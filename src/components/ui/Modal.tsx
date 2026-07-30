@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
+import { FiX } from "react-icons/fi";
 import { cn } from "@/lib/utils/cn";
 
 interface ModalProps {
@@ -99,9 +100,7 @@ export function Modal({ open, onClose, title, children, maxWidthClassName = "sm:
               aria-label="Yopish"
               className="flex h-9 w-9 items-center justify-center rounded-full text-text-muted hover:bg-surface-raised"
             >
-              <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
-                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-              </svg>
+              <FiX className="h-5 w-5" />
             </button>
           </div>
         )}

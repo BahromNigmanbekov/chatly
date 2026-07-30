@@ -1,17 +1,22 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Timestamp } from "firebase/firestore";
+import { FiCheck, FiMic, FiPaperclip, FiSend, FiX } from "react-icons/fi";
 import { Button } from "@/components/ui/Button";
+import { MediaPickerSheet } from "@/components/chat/MediaPickerSheet";
+import { MediaSendPreviewModal } from "@/components/chat/MediaSendPreviewModal";
 import { ReplyQuote } from "@/components/chat/ReplyQuote";
 import { useTypingPublisher } from "@/hooks/useTypingStatus";
 import { useVoiceRecorder } from "@/hooks/useVoiceRecorder";
-import { editMessage, sendMessage } from "@/lib/firebase/messages";
-import { chatMediaPath, uploadWithProgress } from "@/lib/firebase/storage";
-import { getVideoDuration } from "@/lib/utils/media";
+import { editMessage, reserveMessageId, sendMessage } from "@/lib/firebase/messages";
+import { chatMediaPath, uploadToSupabase } from "@/lib/supabase/storage";
 import { messagePreviewText } from "@/lib/utils/messagePreview";
 import { formatDuration } from "@/lib/utils/formatTime";
 import { cn } from "@/lib/utils/cn";
 import type { ChatMessage } from "@/types/message";
+
+const VOICE_MESSAGE_TTL_MS = 20 * 60 * 1000;
 
 interface MessageInputProps {
   chatId: string;
@@ -38,7 +43,8 @@ export function MessageInput({
 }: MessageInputProps) {
   const [text, setText] = useState("");
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const setTyping = useTypingPublisher(chatId, uid);
   const recorder = useVoiceRecorder();
@@ -80,30 +86,6 @@ export function MessageInput({
     onCancelReply();
   }
 
-  async function handleFile(file: File | undefined) {
-    if (!file) return;
-    const isVideo = file.type.startsWith("video/");
-    const isImage = file.type.startsWith("image/");
-    if (!isVideo && !isImage) return;
-
-    setUploadProgress(0);
-    try {
-      const duration = isVideo ? await getVideoDuration(file) : null;
-      const url = await uploadWithProgress(chatMediaPath(chatId, uid, file.name), file, setUploadProgress);
-      await sendMessage({
-        chatId,
-        senderId: uid,
-        participantIds,
-        type: isVideo ? "video" : "image",
-        mediaURL: url,
-        duration: duration ?? undefined,
-      });
-    } finally {
-      setUploadProgress(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
-  }
-
   async function handleRecordStart() {
     if (disabled) return;
     try {
@@ -121,10 +103,11 @@ export function MessageInput({
     if (!result) return;
     setUploadProgress(0);
     try {
-      const url = await uploadWithProgress(
-        chatMediaPath(chatId, uid, "voice.webm"),
+      const messageId = reserveMessageId(chatId);
+      const url = await uploadToSupabase(
+        chatMediaPath(chatId, messageId, "voice.webm"),
         result.blob,
-        setUploadProgress,
+        { onProgress: setUploadProgress },
       );
       await sendMessage({
         chatId,
@@ -133,6 +116,8 @@ export function MessageInput({
         type: "voice",
         mediaURL: url,
         duration: result.durationSec,
+        expiresAt: Timestamp.fromMillis(Date.now() + VOICE_MESSAGE_TTL_MS),
+        messageId,
       });
     } finally {
       setUploadProgress(null);
@@ -176,9 +161,7 @@ export function MessageInput({
             aria-label="Tahrirlashni bekor qilish"
             className="text-text-muted hover:text-text"
           >
-            <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
-              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-            </svg>
+            <FiX className="h-4 w-4" />
           </button>
         </div>
       ) : (
@@ -193,29 +176,27 @@ export function MessageInput({
         )
       )}
 
-      <div className="flex items-end gap-2 px-3 py-3">
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*,video/*"
-          className="hidden"
-          onChange={(e) => handleFile(e.target.files?.[0])}
+      <MediaPickerSheet open={pickerOpen} onClose={() => setPickerOpen(false)} onPick={setPendingFile} />
+      {pendingFile && (
+        <MediaSendPreviewModal
+          file={pendingFile}
+          chatId={chatId}
+          uid={uid}
+          participantIds={participantIds}
+          onClose={() => setPendingFile(null)}
+          onSent={() => setPendingFile(null)}
         />
+      )}
+
+      <div className="flex items-end gap-2 px-3 py-3">
         <button
           type="button"
-          onClick={() => fileInputRef.current?.click()}
+          onClick={() => setPickerOpen(true)}
           aria-label="Fayl biriktirish"
           disabled={uploadProgress !== null}
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-muted hover:bg-surface-raised disabled:opacity-50"
         >
-          <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
-            <path
-              d="M8 12l6.5-6.5a3.5 3.5 0 015 5L11 18a5 5 0 01-7-7l7.5-7.5"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-            />
-          </svg>
+          <FiPaperclip className="h-5 w-5" />
         </button>
 
         <textarea
@@ -245,15 +226,7 @@ export function MessageInput({
 
         {text.trim() ? (
           <Button size="icon" onClick={handleSendText} aria-label={editingMessage ? "Saqlash" : "Yuborish"}>
-            {editingMessage ? (
-              <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
-                <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            ) : (
-              <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
-                <path d="M4 12l16-7-6 16-3-7-7-2z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-              </svg>
-            )}
+            {editingMessage ? <FiCheck className="h-5 w-5" /> : <FiSend className="h-5 w-5" />}
           </Button>
         ) : (
           <button
@@ -274,14 +247,7 @@ export function MessageInput({
               "flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-white",
             )}
           >
-            <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
-              <path
-                d="M12 15a3 3 0 003-3V6a3 3 0 10-6 0v6a3 3 0 003 3zm5-3a5 5 0 01-10 0M12 18v2"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-              />
-            </svg>
+            <FiMic className="h-5 w-5" />
           </button>
         )}
       </div>

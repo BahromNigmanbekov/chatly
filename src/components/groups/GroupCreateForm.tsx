@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { MemberPicker } from "@/components/groups/MemberPicker";
 import { createGroupChat } from "@/lib/firebase/chats";
-import { groupPhotoPath, uploadWithProgress } from "@/lib/firebase/storage";
+import { groupPhotoPath, uploadToSupabase } from "@/lib/supabase/storage";
 import { useAuthStore } from "@/store/useAuthStore";
 import type { UserProfile } from "@/types/user";
 
@@ -37,7 +37,7 @@ export function GroupCreateForm({ onCreated }: { onCreated: (chatId: string) => 
       let groupPhotoURL: string | undefined;
       if (photoFile) {
         // Group id isn't known yet, so store under a temp key then let the chat doc reference it.
-        groupPhotoURL = await uploadWithProgress(groupPhotoPath(`pending-${uid}`, photoFile.name), photoFile);
+        groupPhotoURL = await uploadToSupabase(groupPhotoPath(`pending-${uid}-${Date.now()}`), photoFile);
       }
       const chatId = await createGroupChat({
         ownerId: uid,

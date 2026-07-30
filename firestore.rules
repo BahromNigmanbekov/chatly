@@ -151,6 +151,13 @@ service cloud.firestore {
             msgAffectedKeys().hasOnly(['type', 'content', 'mediaURL'])
             && resource.data.senderId == request.auth.uid
           )
+          // Voice-message auto-expiry sweep (20 min after createdAt): any
+          // participant's client can trigger it, not just the sender — it's
+          // best-effort housekeeping run whenever a chat is opened/updated.
+          || (
+            msgAffectedKeys().hasOnly(['mediaURL', 'voiceExpired'])
+            && resource.data.type == 'voice'
+          )
         );
 
         allow delete: if false;

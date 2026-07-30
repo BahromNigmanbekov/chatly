@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { FiPhone, FiVideo } from "react-icons/fi";
 import { Avatar } from "@/components/ui/Avatar";
 import { BackButton } from "@/components/chat/BackButton";
 import { PinnedMessageBar } from "@/components/chat/PinnedMessageBar";
@@ -30,25 +31,7 @@ function CallButton({ kind, disabled, onClick }: { kind: "audio" | "video"; disa
       aria-label={kind === "audio" ? "Ovozli qo'ng'iroq" : "Video qo'ng'iroq"}
       className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-muted hover:bg-surface-raised disabled:opacity-40"
     >
-      {kind === "audio" ? (
-        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
-          <path
-            d="M6.5 3.5c1 0 2.8 2.6 2.8 3.6s-1.5 1.7-1.5 2.6c0 1.8 3 4.8 4.8 4.8.9 0 1.7-1.5 2.6-1.5 1 0 3.6 1.8 3.6 2.8 0 1.4-1.7 3.2-3.2 3.2C10.9 19 5 13.1 5 8.2c0-1.5 1.8-3.2 3.2-3.2z"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ) : (
-        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
-          <path
-            d="M3.5 7.5A1.5 1.5 0 015 6h8a1.5 1.5 0 011.5 1.5v9A1.5 1.5 0 0113 18H5a1.5 1.5 0 01-1.5-1.5v-9zM16 10l4.5-2.5v9L16 14"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinejoin="round"
-          />
-        </svg>
-      )}
+      {kind === "audio" ? <FiPhone className="h-5 w-5" /> : <FiVideo className="h-5 w-5" />}
     </button>
   );
 }

@@ -2,22 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { FiMessageCircle } from "react-icons/fi";
 import { Avatar } from "@/components/ui/Avatar";
 import { useAuthStore } from "@/store/useAuthStore";
 import { cn } from "@/lib/utils/cn";
-
-function ChatsIcon({ active }: { active: boolean }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" aria-hidden>
-      <path
-        d="M4 5.5h16a1 1 0 011 1V16a1 1 0 01-1 1H9l-4.5 3.5V17H4a1 1 0 01-1-1V6.5a1 1 0 011-1z"
-        stroke="currentColor"
-        strokeWidth={active ? 2 : 1.6}
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 
 export function MobileTabBar() {
   const pathname = usePathname();
@@ -39,7 +27,7 @@ export function MobileTabBar() {
         )}
         aria-current={isChats ? "page" : undefined}
       >
-        <ChatsIcon active={isChats} />
+        <FiMessageCircle className="h-6 w-6" aria-hidden />
         Suhbatlar
       </Link>
       <Link

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { FiPlus, FiSearch } from "react-icons/fi";
 import { Avatar } from "@/components/ui/Avatar";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { ChatList } from "@/components/chat/ChatList";
@@ -24,10 +25,7 @@ export function Sidebar() {
             aria-label="Foydalanuvchi qidirish"
             className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface text-text hover:bg-primary-soft"
           >
-            <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden>
-              <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="1.6" />
-              <path d="M20 20l-4-4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-            </svg>
+            <FiSearch className="h-5 w-5" aria-hidden />
           </Link>
           <button
             type="button"
@@ -35,9 +33,7 @@ export function Sidebar() {
             aria-label="Yangi guruh yaratish"
             className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface text-text hover:bg-primary-soft"
           >
-            <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden>
-              <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-            </svg>
+            <FiPlus className="h-5 w-5" aria-hidden />
           </button>
           <ThemeToggle />
           <Link href="/profile" aria-label="Profil">

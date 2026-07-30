@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { FiChevronLeft } from "react-icons/fi";
 
 export function BackButton({ href = "/" }: { href?: string }) {
   const router = useRouter();
@@ -12,15 +13,7 @@ export function BackButton({ href = "/" }: { href?: string }) {
       aria-label="Orqaga"
       className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full hover:bg-primary-soft md:hidden"
     >
-      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 text-text" aria-hidden>
-        <path
-          d="M15 6l-6 6 6 6"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      <FiChevronLeft className="h-5 w-5 text-text" aria-hidden />
     </button>
   );
 }

@@ -16,7 +16,11 @@ export async function getLocalMedia(type: CallType, facingMode: "user" | "enviro
     console.log("[WebRTC] requesting getUserMedia", { type, facingMode });
     const stream = await navigator.mediaDevices.getUserMedia({
       audio: true,
-      video: type === "video" ? { facingMode } : false,
+      // Capped resolution/framerate: the previous unconstrained request let the
+      // browser pick full camera resolution, which a slow/asymmetric link (e.g.
+      // one side on 4G) can't keep up encoding+sending, causing the freezing
+      // reported on mixed-network calls.
+      video: type === "video" ? { facingMode, width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 20, max: 24 } } : false,
     });
     console.log(
       "[WebRTC] getUserMedia resolved",

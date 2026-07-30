@@ -1,5 +1,6 @@
 "use client";
 
+import { FiPhone, FiPhoneOff } from "react-icons/fi";
 import { Avatar } from "@/components/ui/Avatar";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useCallStore } from "@/store/useCallStore";
@@ -31,15 +32,7 @@ export function IncomingCallScreen() {
           aria-label="Rad etish"
           className="flex h-16 w-16 items-center justify-center rounded-full bg-danger text-white shadow-lg"
         >
-          <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7">
-            <path
-              d="M4.5 15.5c1-3 4-5 7.5-5s6.5 2 7.5 5c.3.9-.2 1.9-1.1 2.1l-2.6.7a1.7 1.7 0 01-1.8-.6l-1-1.3a8 8 0 00-2 0l-1 1.3a1.7 1.7 0 01-1.8.6l-2.6-.7c-.9-.2-1.4-1.2-1.1-2.1z"
-              stroke="currentColor"
-              strokeWidth="1.7"
-              strokeLinejoin="round"
-              transform="rotate(135 12 12)"
-            />
-          </svg>
+          <FiPhoneOff className="h-7 w-7" />
         </button>
 
         <button
@@ -48,14 +41,7 @@ export function IncomingCallScreen() {
           aria-label="Qabul qilish"
           className="flex h-16 w-16 items-center justify-center rounded-full bg-online text-white shadow-lg"
         >
-          <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7">
-            <path
-              d="M4.5 15.5c1-3 4-5 7.5-5s6.5 2 7.5 5c.3.9-.2 1.9-1.1 2.1l-2.6.7a1.7 1.7 0 01-1.8-.6l-1-1.3a8 8 0 00-2 0l-1 1.3a1.7 1.7 0 01-1.8.6l-2.6-.7c-.9-.2-1.4-1.2-1.1-2.1z"
-              stroke="currentColor"
-              strokeWidth="1.7"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <FiPhone className="h-7 w-7" />
         </button>
       </div>
     </div>

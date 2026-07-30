@@ -2,7 +2,6 @@ import { getApp, getApps, initializeApp, type FirebaseOptions } from "firebase/a
 import { connectAuthEmulator, getAuth } from "firebase/auth";
 import { connectDatabaseEmulator, getDatabase } from "firebase/database";
 import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
-import { connectStorageEmulator, getStorage } from "firebase/storage";
 
 const firebaseConfig: FirebaseOptions = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -23,7 +22,6 @@ export const auth = getAuth(firebaseApp);
 // getFirestore(app)'s implicit "(default)" lookup.
 const firestoreDatabaseId = process.env.NEXT_PUBLIC_FIRESTORE_DATABASE_ID || "(default)";
 export const db = getFirestore(firebaseApp, firestoreDatabaseId);
-export const storage = getStorage(firebaseApp);
 export const rtdb = getDatabase(firebaseApp);
 
 export const useEmulator = process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR === "true";
@@ -36,7 +34,6 @@ declare global {
 if (useEmulator && typeof window !== "undefined" && !globalThis.__chatlyEmulatorsConnected) {
   connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
   connectFirestoreEmulator(db, "127.0.0.1", 8080);
-  connectStorageEmulator(storage, "127.0.0.1", 9199);
   connectDatabaseEmulator(rtdb, "127.0.0.1", 9000);
   globalThis.__chatlyEmulatorsConnected = true;
 }

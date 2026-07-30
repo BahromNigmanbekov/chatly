@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { FiPause, FiPlay } from "react-icons/fi";
 import { formatDuration } from "@/lib/utils/formatTime";
 import { cn } from "@/lib/utils/cn";
 
@@ -30,16 +31,7 @@ export function AudioPlayer({ src, duration, mine }: { src: string; duration: nu
           mine ? "bg-white/20 text-white" : "bg-primary-soft text-primary",
         )}
       >
-        {playing ? (
-          <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
-            <rect x="6" y="5" width="4" height="14" rx="1" />
-            <rect x="14" y="5" width="4" height="14" rx="1" />
-          </svg>
-        ) : (
-          <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
-            <path d="M7 5l12 7-12 7V5z" />
-          </svg>
-        )}
+        {playing ? <FiPause className="h-4 w-4" /> : <FiPlay className="h-4 w-4" />}
       </button>
       <div className="flex h-7 flex-1 items-center gap-[2px]" aria-hidden>
         {Array.from({ length: 24 }).map((_, i) => (

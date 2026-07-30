@@ -5,6 +5,7 @@ import {
   getDoc,
   increment,
   serverTimestamp,
+  Timestamp,
   updateDoc,
   writeBatch,
 } from "firebase/firestore";
@@ -39,11 +40,25 @@ interface SendMessageParams {
   replyTo?: ReplyPreview;
   forwardedFrom?: ForwardedFromInfo;
   card?: MessageCard;
+  /** Voice messages only: when the media should be auto-purged. */
+  expiresAt?: Timestamp;
+  /**
+   * Pre-reserved doc ID (via reserveMessageId) — needed when the upload path
+   * itself must embed the message ID, e.g. Supabase media paths.
+   */
+  messageId?: string;
+}
+
+/** Reserves a message ID before the doc is written, so upload paths can embed it. */
+export function reserveMessageId(chatId: string): string {
+  return doc(messagesCol(chatId)).id;
 }
 
 export async function sendMessage(params: SendMessageParams): Promise<string> {
   const batch = writeBatch(db);
-  const messageRef = doc(messagesCol(params.chatId));
+  const messageRef = params.messageId
+    ? doc(messagesCol(params.chatId), params.messageId)
+    : doc(messagesCol(params.chatId));
 
   batch.set(messageRef, {
     id: messageRef.id,
@@ -60,6 +75,8 @@ export async function sendMessage(params: SendMessageParams): Promise<string> {
     replyTo: params.replyTo ?? null,
     forwardedFrom: params.forwardedFrom ?? null,
     card: params.card ?? null,
+    expiresAt: params.expiresAt ?? null,
+    voiceExpired: false,
     createdAt: serverTimestamp(),
   });
 
@@ -145,6 +162,14 @@ export async function editMessage(chatId: string, messageId: string, newContent:
     content: newContent,
     isEdited: true,
     editedAt: serverTimestamp(),
+  });
+}
+
+/** Clears the media + flags a voice message as expired (client-side sweep, see useVoiceExpirySweep). */
+export async function expireVoiceMessage(chatId: string, messageId: string) {
+  await updateDoc(doc(messagesCol(chatId), messageId), {
+    mediaURL: null,
+    voiceExpired: true,
   });
 }
 

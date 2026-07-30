@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
+import { FiMic, FiMicOff, FiPhoneOff, FiRefreshCw, FiVideo, FiVideoOff, FiVolume2 } from "react-icons/fi";
 import { Avatar } from "@/components/ui/Avatar";
 import { CallControlButton } from "@/components/calls/CallControlButton";
 import { useCallTimer } from "@/hooks/useCallTimer";
@@ -16,10 +17,17 @@ import { useCallStore } from "@/store/useCallStore";
  * fires again and srcObject is never attached. A callback ref runs exactly
  * when the element mounts, using whatever stream is current at that moment,
  * so it's correct regardless of which happens first.
+ *
+ * Also explicitly calls .play() rather than relying solely on the `autoplay`
+ * attribute: some browsers (notably Safari, and Chrome after enough time has
+ * passed since the last user gesture) silently block autoplay-with-sound —
+ * the `<audio>` element sits there with a valid srcObject and never makes a
+ * sound. `onBlocked` lets the caller surface a "tap to enable sound" retry,
+ * which always succeeds since it runs inside a real click handler.
  */
-function useStreamRef<T extends HTMLMediaElement>(stream: MediaStream | null) {
+function useStreamRef<T extends HTMLMediaElement>(stream: MediaStream | null, onBlocked?: () => void) {
   const elRef = useRef<T | null>(null);
-  return useCallback(
+  const attach = useCallback(
     (node: T | null) => {
       elRef.current = node;
       if (node) {
@@ -30,10 +38,20 @@ function useStreamRef<T extends HTMLMediaElement>(stream: MediaStream | null) {
           "tracks:",
           stream?.getTracks().map((t) => t.kind) ?? null,
         );
+        if (stream) {
+          node
+            .play()
+            .then(() => console.log("[WebRTC]", node.tagName, "play() succeeded"))
+            .catch((err) => {
+              console.error("[WebRTC]", node.tagName, "play() blocked:", err.name, err.message);
+              onBlocked?.();
+            });
+        }
       }
     },
-    [stream],
+    [stream, onBlocked],
   );
+  return [attach, elRef] as const;
 }
 
 export function ActiveCallScreen() {
@@ -52,10 +70,18 @@ export function ActiveCallScreen() {
   const switchCamera = useCallStore((s) => s.switchCamera);
 
   const { profile } = useUserProfile(peerId);
-  const localVideoRef = useStreamRef<HTMLVideoElement>(localStream);
-  const remoteVideoRef = useStreamRef<HTMLVideoElement>(remoteStream);
-  const remoteAudioRef = useStreamRef<HTMLAudioElement>(remoteStream);
+  const [localVideoRef] = useStreamRef<HTMLVideoElement>(localStream);
+  const [remoteVideoRef] = useStreamRef<HTMLVideoElement>(remoteStream);
+  const [audioBlocked, setAudioBlocked] = useState(false);
+  const [remoteAudioRef, remoteAudioElRef] = useStreamRef<HTMLAudioElement>(remoteStream, () => setAudioBlocked(true));
   const duration = useCallTimer(callStartedAt);
+
+  function retryAudioPlayback() {
+    remoteAudioElRef.current
+      ?.play()
+      .then(() => setAudioBlocked(false))
+      .catch((err) => console.error("[WebRTC] retry play() failed:", err.name, err.message));
+  }
 
   const isVideo = callType === "video";
   const isRinging = phase === "outgoing";
@@ -70,6 +96,17 @@ export function ActiveCallScreen() {
         playback, since this element already carries that stream's audio).
       */}
       <audio ref={remoteAudioRef} autoPlay />
+
+      {audioBlocked && (
+        <button
+          type="button"
+          onClick={retryAudioPlayback}
+          className="absolute left-1/2 top-[calc(var(--safe-top)+1rem)] z-10 flex -translate-x-1/2 items-center gap-2 rounded-full bg-danger px-4 py-2 text-sm font-medium text-white shadow-lg"
+        >
+          <FiVolume2 className="h-4 w-4" />
+          Ovozni yoqish
+        </button>
+      )}
 
       <div className="relative flex flex-1 items-center justify-center overflow-hidden">
         {isVideo && remoteStream && !isRinging ? (
@@ -112,52 +149,23 @@ export function ActiveCallScreen() {
         style={{ paddingBottom: "calc(var(--safe-bottom) + 1.5rem)" }}
       >
         <CallControlButton onClick={toggleMute} active={muted} label={muted ? "Ovozni yoqish" : "Ovozsiz qilish"}>
-          {muted ? (
-            <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6">
-              <path d="M9.5 9a2.5 2.5 0 015 0v3a2.5 2.5 0 01-.2 1M12 15a3 3 0 01-3-3M3 3l18 18M17 12a5 5 0 01-1 3M12 18v3" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-            </svg>
-          ) : (
-            <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6">
-              <path d="M12 15a3 3 0 003-3V6a3 3 0 10-6 0v6a3 3 0 003 3zm5-3a5 5 0 01-10 0M12 18v3" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-            </svg>
-          )}
+          {muted ? <FiMicOff className="h-6 w-6" /> : <FiMic className="h-6 w-6" />}
         </CallControlButton>
 
         {isVideo && (
           <CallControlButton onClick={toggleCamera} active={cameraOff} label={cameraOff ? "Kamerani yoqish" : "Kamerani o'chirish"}>
-            {cameraOff ? (
-              <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6">
-                <path d="M3 3l18 18M16 8h1.5A1.5 1.5 0 0119 9.5v5c0 .3-.06.6-.17.86M15 16H5.5A1.5 1.5 0 014 14.5v-5A1.5 1.5 0 015.5 8H8" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M19 10l3-2v8l-3-2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            ) : (
-              <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6">
-                <rect x="4" y="8" width="12" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.7" />
-                <path d="M19 10l3-2v8l-3-2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            )}
+            {cameraOff ? <FiVideoOff className="h-6 w-6" /> : <FiVideo className="h-6 w-6" />}
           </CallControlButton>
         )}
 
         {isVideo && (
           <CallControlButton onClick={() => switchCamera()} label="Kamerani almashtirish" >
-            <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6 md:hidden">
-              <path d="M4 7h3l1.5-2h7L17 7h3a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V8a1 1 0 011-1z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
-              <path d="M9 17a4 4 0 118-1M17 12l1 3-3-.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <FiRefreshCw className="h-6 w-6 md:hidden" />
           </CallControlButton>
         )}
 
         <CallControlButton onClick={endCall} danger label="Qo'ng'iroqni tugatish" large>
-          <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7">
-            <path
-              d="M4.5 15.5c1-3 4-5 7.5-5s6.5 2 7.5 5c.3.9-.2 1.9-1.1 2.1l-2.6.7a1.7 1.7 0 01-1.8-.6l-1-1.3a8 8 0 00-2 0l-1 1.3a1.7 1.7 0 01-1.8.6l-2.6-.7c-.9-.2-1.4-1.2-1.1-2.1z"
-              stroke="currentColor"
-              strokeWidth="1.7"
-              strokeLinejoin="round"
-              transform="rotate(135 12 12)"
-            />
-          </svg>
+          <FiPhoneOff className="h-7 w-7" />
         </CallControlButton>
       </div>
     </div>

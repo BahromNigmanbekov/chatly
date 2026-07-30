@@ -2,12 +2,14 @@
 
 import Image from "next/image";
 import { useRef, useState } from "react";
+import { FiCheck, FiPlay } from "react-icons/fi";
 import { AudioPlayer } from "@/components/chat/AudioPlayer";
 import { MediaViewer } from "@/components/chat/MediaViewer";
 import { MessageContextMenu, type MessageMenuItem } from "@/components/chat/MessageContextMenu";
 import { ReadStatusTicks } from "@/components/chat/ReadStatusTicks";
 import { ReplyQuote } from "@/components/chat/ReplyQuote";
 import { RichContentCard } from "@/components/chat/RichContentCard";
+import { VoiceExpiryBadge } from "@/components/chat/VoiceExpiryBadge";
 import { useEmulator } from "@/lib/firebase/client";
 import { pinMessage, unpinMessage } from "@/lib/firebase/messages";
 import { useModalStore } from "@/store/useModalStore";
@@ -142,9 +144,7 @@ export function MessageBubble({
           aria-hidden
         >
           {selected && (
-            <svg viewBox="0 0 24 24" fill="none" className="h-3 w-3">
-              <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <FiCheck className="h-3 w-3" />
           )}
         </span>
       )}
@@ -197,9 +197,18 @@ export function MessageBubble({
 
             {message.type === "text" && <p className="whitespace-pre-wrap wrap-break-word">{message.content}</p>}
 
-            {message.type === "voice" && message.mediaURL && (
+            {message.type === "voice" && (
               <div className="min-w-45">
-                <AudioPlayer src={message.mediaURL} duration={message.duration} mine={mine} />
+                {message.voiceExpired || !message.mediaURL ? (
+                  <p className={cn("py-1 text-sm italic", mine ? "text-white/70" : "text-text-muted")}>
+                    Ovozli xabar muddati tugadi
+                  </p>
+                ) : (
+                  <>
+                    <AudioPlayer src={message.mediaURL} duration={message.duration} mine={mine} />
+                    {message.expiresAt && <VoiceExpiryBadge expiresAt={message.expiresAt} mine={mine} />}
+                  </>
+                )}
               </div>
             )}
 
@@ -221,9 +230,7 @@ export function MessageBubble({
                 <video src={message.mediaURL} className="max-h-72 w-full rounded-lg" muted />
                 <span className="absolute inset-0 flex items-center justify-center">
                   <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50">
-                    <svg viewBox="0 0 24 24" fill="white" className="h-4 w-4">
-                      <path d="M7 5l12 7-12 7V5z" />
-                    </svg>
+                    <FiPlay className="h-4 w-4 fill-white text-white" />
                   </span>
                 </span>
               </button>
@@ -270,9 +277,7 @@ export function MessageBubble({
           aria-hidden
         >
           {selected && (
-            <svg viewBox="0 0 24 24" fill="none" className="h-3 w-3">
-              <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <FiCheck className="h-3 w-3" />
           )}
         </span>
       )}

@@ -37,5 +37,9 @@ export interface ChatMessage {
   replyTo: ReplyPreview | null;
   forwardedFrom: ForwardedFromInfo | null;
   card: MessageCard | null;
+  /** Voice messages only: when the media should be auto-purged (createdAt + 20min). */
+  expiresAt: Timestamp | null;
+  /** Voice messages only: true once the sweep has cleared its media. */
+  voiceExpired: boolean;
   createdAt: Timestamp | null;
 }

@@ -16,7 +16,7 @@ import {
   setGroupAdmin,
   updateGroupInfo,
 } from "@/lib/firebase/groups";
-import { groupPhotoPath, uploadWithProgress } from "@/lib/firebase/storage";
+import { groupPhotoPath, uploadToSupabase } from "@/lib/supabase/storage";
 import type { Chat } from "@/types/chat";
 import type { UserProfile } from "@/types/user";
 
@@ -49,7 +49,7 @@ export function GroupInfoPanel({ chat, uid, onDeleted, onLeft }: GroupInfoPanelP
     if (!file) return;
     setBusy(true);
     try {
-      const url = await uploadWithProgress(groupPhotoPath(chat.id, file.name), file);
+      const url = await uploadToSupabase(groupPhotoPath(chat.id), file, { upsert: true });
       await updateGroupInfo(chat.id, { groupPhotoURL: url });
     } finally {
       setBusy(false);

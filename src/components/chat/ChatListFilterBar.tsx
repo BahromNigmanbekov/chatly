@@ -1,5 +1,6 @@
 "use client";
 
+import { FiSearch } from "react-icons/fi";
 import { cn } from "@/lib/utils/cn";
 
 export type ChatFilter = "all" | "unread" | "groups";
@@ -26,15 +27,10 @@ export function ChatListFilterBar({
   return (
     <div className="flex flex-col gap-2.5 border-b border-border px-3 pb-3 pt-1">
       <div className="relative">
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
+        <FiSearch
           className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
           aria-hidden
-        >
-          <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M20 20l-4-4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-        </svg>
+        />
         <input
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}

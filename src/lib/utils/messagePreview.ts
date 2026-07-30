@@ -3,7 +3,7 @@ import type { ChatMessage } from "@/types/message";
 export function messagePreviewText(message: ChatMessage): string {
   switch (message.type) {
     case "voice":
-      return "🎤 Ovozli xabar";
+      return message.voiceExpired ? "🎤 Ovozli xabar muddati tugadi" : "🎤 Ovozli xabar";
     case "image":
       return "📷 Rasm";
     case "video":
