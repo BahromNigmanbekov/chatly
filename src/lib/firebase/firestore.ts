@@ -8,7 +8,7 @@ import {
   type QueryDocumentSnapshot,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
-import type { Call, CallIceCandidate } from "@/types/call";
+import type { Call } from "@/types/call";
 import type { Chat } from "@/types/chat";
 import type { ChatMessage } from "@/types/message";
 import type { UserProfile } from "@/types/user";
@@ -74,24 +74,3 @@ export function callDoc(chatId: string, callId: string) {
 
 /** Query across every chat's `calls` subcollection at once — used for the global incoming-call listener. */
 export const callsGroup = collectionGroup(db, "calls").withConverter(callConverter);
-
-const candidateConverter: FirestoreDataConverter<CallIceCandidate> = {
-  toFirestore(data: CallIceCandidate): DocumentData {
-    return { ...data };
-  },
-  fromFirestore(snapshot: QueryDocumentSnapshot): CallIceCandidate {
-    return snapshot.data() as CallIceCandidate;
-  },
-};
-
-export function callerCandidatesCol(chatId: string, callId: string) {
-  return collection(db, "chats", chatId, "calls", callId, "callerCandidates").withConverter(
-    candidateConverter,
-  );
-}
-
-export function calleeCandidatesCol(chatId: string, callId: string) {
-  return collection(db, "chats", chatId, "calls", callId, "calleeCandidates").withConverter(
-    candidateConverter,
-  );
-}

@@ -16,13 +16,25 @@ export function CallProvider() {
 
   useEffect(() => {
     if (!uid) return;
-    // array-contains + status, mirroring the /chats query pattern — Firestore
+    // array-contains + status-in, mirroring the /chats query pattern — Firestore
     // can only prove a `list` query safe against a rule that checks
     // array-membership on the exact field the filter constrains, so we filter
-    // broadly here and pick out the "I'm the callee, not the caller" case client-side.
-    const q = query(callsGroup, where("participantIds", "array-contains", uid), where("status", "==", "ringing"));
+    // broadly here and pick the relevant case client-side: a 1:1 call still
+    // "ringing" where I'm not the caller, or a group call that's "active"
+    // (group calls skip ringing — see types/call.ts) which I haven't started.
+    const q = query(
+      callsGroup,
+      where("participantIds", "array-contains", uid),
+      where("status", "in", ["ringing", "active"]),
+    );
     const unsub = onSnapshot(q, (snap) => {
-      const docSnap = snap.docs.find((d) => d.data().callerId !== uid && d.data().calleeId === uid);
+      const docSnap = snap.docs.find((d) => {
+        const data = d.data();
+        if (data.callerId === uid) return false;
+        if (!data.isGroup && data.status === "ringing") return true;
+        if (data.isGroup && data.status === "active") return true;
+        return false;
+      });
       setIncomingCall(docSnap ? docSnap.data() : null);
     });
     return unsub;

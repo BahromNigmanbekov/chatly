@@ -163,7 +163,7 @@ service cloud.firestore {
         allow delete: if false;
       }
 
-      // ---- calls (1-on-1 WebRTC signaling) ------------------------------
+      // ---- calls (Jitsi Meet-backed signaling: 1-on-1 + group) ----------
       match /calls/{callId} {
         // Same array-contains pattern already used for /chats — Firestore can
         // statically prove a `list` query safe when the rule checks
@@ -177,42 +177,25 @@ service cloud.firestore {
 
         allow read: if isCallParticipant();
 
+        // 1:1 calls invite exactly 2 people and start "ringing"; group calls
+        // invite the whole chat's membership and start "active" directly (no
+        // ring/accept step — see types/call.ts). No SDP/ICE data lives on this
+        // doc, just the Jitsi room name (jitsiRoomName) — the actual media
+        // connection happens entirely on meet.jit.si, outside Firestore.
         allow create: if isSignedIn()
           && request.resource.data.callerId == request.auth.uid
           && request.auth.uid in request.resource.data.participantIds
-          && request.resource.data.participantIds.size() == 2;
+          && (
+            (request.resource.data.isGroup == false && request.resource.data.participantIds.size() == 2)
+            || (request.resource.data.isGroup == true && request.resource.data.participantIds.size() >= 1)
+          );
 
-        // Both sides need to write here: the caller sets the offer, the callee
-        // sets the answer + flips status to "active", either side can end/decline
-        // it. Field-level diffing isn't worth the complexity for a 2-person call
-        // only the two legitimate participants can ever touch.
+        // Any invited participant can flip status (accept/decline/end) —
+        // field-level diffing isn't worth the complexity for a call doc only
+        // its own participants can ever read or reach in the first place.
         allow update: if isCallParticipant();
 
         allow delete: if isCallParticipant();
-
-        match /callerCandidates/{candidateId} {
-          function callData() {
-            return get(/databases/$(database)/documents/chats/$(chatId)/calls/$(callId)).data;
-          }
-          function isParticipant() {
-            return isSignedIn()
-              && (request.auth.uid == callData().get('callerId', null)
-                || request.auth.uid == callData().get('calleeId', null));
-          }
-          allow read, create, delete: if isParticipant();
-        }
-
-        match /calleeCandidates/{candidateId} {
-          function callData() {
-            return get(/databases/$(database)/documents/chats/$(chatId)/calls/$(callId)).data;
-          }
-          function isParticipant() {
-            return isSignedIn()
-              && (request.auth.uid == callData().get('callerId', null)
-                || request.auth.uid == callData().get('calleeId', null));
-          }
-          allow read, create, delete: if isParticipant();
-        }
       }
     }
   }

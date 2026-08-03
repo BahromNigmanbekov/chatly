@@ -40,14 +40,19 @@ export function ChatHeader({ chat, uid, participantProfiles }: ChatHeaderProps) 
   const { name, photoURL, presence } = useChatDisplay(chat, uid);
   const setGroupSettingsChatId = useModalStore((s) => s.setGroupSettingsChatId);
   const startCall = useCallStore((s) => s.startCall);
+  const startGroupCall = useCallStore((s) => s.startGroupCall);
   const callPhase = useCallStore((s) => s.phase);
   const [, forceTick] = useState(0);
 
   const peerId = chat.type === "direct" ? otherParticipantId(chat, uid) : null;
 
   function handleStartCall(type: CallType) {
-    if (!peerId || callPhase !== "idle") return;
-    void startCall(chat.id, uid, peerId, type);
+    if (callPhase !== "idle") return;
+    if (chat.type === "group") {
+      void startGroupCall(chat.id, uid, chat.participantIds, type);
+    } else if (peerId) {
+      void startCall(chat.id, uid, peerId, type);
+    }
   }
 
   useEffect(() => {
@@ -121,12 +126,8 @@ export function ChatHeader({ chat, uid, participantProfiles }: ChatHeaderProps) 
         ) : (
           <div className="min-w-0 flex-1">{info}</div>
         )}
-        {chat.type === "direct" && (
-          <>
-            <CallButton kind="audio" disabled={callPhase !== "idle"} onClick={() => handleStartCall("audio")} />
-            <CallButton kind="video" disabled={callPhase !== "idle"} onClick={() => handleStartCall("video")} />
-          </>
-        )}
+        <CallButton kind="audio" disabled={callPhase !== "idle"} onClick={() => handleStartCall("audio")} />
+        <CallButton kind="video" disabled={callPhase !== "idle"} onClick={() => handleStartCall("video")} />
       </div>
       {chat.pinnedMessageId && (
         <PinnedMessageBar

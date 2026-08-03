@@ -20,7 +20,7 @@
       "collectionGroup": "calls",
       "queryScope": "COLLECTION_GROUP",
       "fields": [
-        { "fieldPath": "calleeId", "order": "ASCENDING" },
+        { "fieldPath": "participantIds", "arrayConfig": "CONTAINS" },
         { "fieldPath": "status", "order": "ASCENDING" }
       ]
     }
