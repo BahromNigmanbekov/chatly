@@ -4,14 +4,6 @@
       "collectionGroup": "chats",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "participantIds", "arrayConfig": "CONTAINS" },
-        { "fieldPath": "lastMessage.timestamp", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "chats",
-      "queryScope": "COLLECTION",
-      "fields": [
         { "fieldPath": "type", "order": "ASCENDING" },
         { "fieldPath": "participantIds", "arrayConfig": "CONTAINS" }
       ]

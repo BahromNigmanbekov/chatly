@@ -10,16 +10,18 @@ import { deleteMessage, markMessagesDelivered, markMessagesRead } from "@/lib/fi
 import { useModalStore } from "@/store/useModalStore";
 import type { Chat } from "@/types/chat";
 import type { ChatMessage } from "@/types/message";
+import type { UserProfile } from "@/types/user";
 
 interface MessageListProps {
   chat: Chat;
   uid: string;
   senderNames?: Record<string, string>;
+  participantProfiles?: Record<string, UserProfile>;
   onReply: (message: ChatMessage) => void;
   onEdit: (message: ChatMessage) => void;
 }
 
-export function MessageList({ chat, uid, senderNames, onReply, onEdit }: MessageListProps) {
+export function MessageList({ chat, uid, senderNames, participantProfiles, onReply, onEdit }: MessageListProps) {
   const { messages, loading, loadMore, hasMore, loadingMore } = useMessages(chat.id);
   useVoiceExpirySweep(chat.id, messages);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -127,6 +129,7 @@ export function MessageList({ chat, uid, senderNames, onReply, onEdit }: Message
             chat={chat}
             uid={uid}
             senderName={senderNames?.[message.senderId]}
+            participantProfiles={participantProfiles}
             selectionMode={selectionMode}
             selected={selectedIds.has(message.id)}
             onSelectAction={handleSelectAction}

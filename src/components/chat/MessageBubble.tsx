@@ -6,18 +6,21 @@ import { FiCheck, FiPlay } from "react-icons/fi";
 import { AudioPlayer } from "@/components/chat/AudioPlayer";
 import { MediaViewer } from "@/components/chat/MediaViewer";
 import { MessageContextMenu, type MessageMenuItem } from "@/components/chat/MessageContextMenu";
+import { ReactionsListModal } from "@/components/chat/ReactionsListModal";
 import { ReadStatusTicks } from "@/components/chat/ReadStatusTicks";
 import { ReplyQuote } from "@/components/chat/ReplyQuote";
 import { RichContentCard } from "@/components/chat/RichContentCard";
 import { VoiceExpiryBadge } from "@/components/chat/VoiceExpiryBadge";
+import { Avatar } from "@/components/ui/Avatar";
 import { useEmulator } from "@/lib/firebase/client";
-import { pinMessage, unpinMessage } from "@/lib/firebase/messages";
+import { pinMessage, toggleReaction, unpinMessage } from "@/lib/firebase/messages";
 import { useModalStore } from "@/store/useModalStore";
 import { useToastStore } from "@/store/useToastStore";
 import { cn } from "@/lib/utils/cn";
 import { formatMessageTime } from "@/lib/utils/formatTime";
 import type { Chat } from "@/types/chat";
-import type { ChatMessage } from "@/types/message";
+import { QUICK_REACTIONS, type ChatMessage } from "@/types/message";
+import type { UserProfile } from "@/types/user";
 
 interface MessageBubbleProps {
   message: ChatMessage;
@@ -25,6 +28,7 @@ interface MessageBubbleProps {
   chat: Chat;
   uid: string;
   senderName?: string;
+  participantProfiles?: Record<string, UserProfile>;
   selectionMode: boolean;
   selected: boolean;
   onSelectAction: (messageId: string) => void;
@@ -40,6 +44,7 @@ export function MessageBubble({
   chat,
   uid,
   senderName,
+  participantProfiles,
   selectionMode,
   selected,
   onSelectAction,
@@ -48,6 +53,7 @@ export function MessageBubble({
 }: MessageBubbleProps) {
   const [viewerOpen, setViewerOpen] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState<{ x: number; y: number } | null>(null);
+  const [reactionsListOpen, setReactionsListOpen] = useState(false);
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const setDeleteMessageTarget = useModalStore((s) => s.setDeleteMessageTarget);
   const setForwardMessageTarget = useModalStore((s) => s.setForwardMessageTarget);
@@ -103,6 +109,13 @@ export function MessageBubble({
     return items;
   }
 
+  function handleReact(emoji: string) {
+    const alreadyReacted = (message.reactions?.[emoji] ?? []).includes(uid);
+    toggleReaction(chat.id, message.id, uid, emoji, !alreadyReacted).catch(() => {
+      showToast("Reaksiya qo'yib bo'lmadi");
+    });
+  }
+
   function handleBubbleClick() {
     if (selectionMode) onSelectAction(message.id);
   }
@@ -149,8 +162,18 @@ export function MessageBubble({
         </span>
       )}
 
+      {!mine && chat.type === "group" && (
+        <Avatar
+          name={senderName ?? "..."}
+          photoURL={participantProfiles?.[message.senderId]?.photoURL}
+          size="sm"
+          ring
+          className="mb-1 self-end"
+        />
+      )}
+
       <div
-        className="relative flex max-w-[78%] flex-col gap-1 sm:max-w-[65%]"
+        className="relative flex min-w-0 max-w-[78%] flex-col gap-1 sm:max-w-[65%]"
         onClick={handleBubbleClick}
         onContextMenu={handleContextMenu}
         onTouchStart={handleTouchStart}
@@ -195,7 +218,7 @@ export function MessageBubble({
               </div>
             )}
 
-            {message.type === "text" && <p className="whitespace-pre-wrap wrap-break-word">{message.content}</p>}
+            {message.type === "text" && <p className="whitespace-pre-wrap wrap-anywhere">{message.content}</p>}
 
             {message.type === "voice" && (
               <div className="min-w-45">
@@ -265,7 +288,44 @@ export function MessageBubble({
           </button>
         )}
 
-        <MessageContextMenu anchor={menuAnchor} items={buildMenuItems()} onClose={() => setMenuAnchor(null)} />
+        {Object.entries(message.reactions ?? {}).some(([, uids]) => uids.length > 0) && (
+          <div className={cn("flex flex-wrap gap-1 px-1", mine ? "justify-end" : "justify-start")}>
+            {Object.entries(message.reactions ?? {})
+              .filter(([, uids]) => uids.length > 0)
+              .map(([emoji, uids]) => (
+                <button
+                  key={emoji}
+                  type="button"
+                  onClick={() => setReactionsListOpen(true)}
+                  aria-label={`${emoji} bilan kimlar javob bergani`}
+                  className={cn(
+                    "flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs transition-colors",
+                    uids.includes(uid)
+                      ? "border-primary bg-primary-soft text-primary"
+                      : "border-border bg-surface text-text-muted hover:bg-surface-raised",
+                  )}
+                >
+                  <span>{emoji}</span>
+                  <span className="tabular-nums">{uids.length}</span>
+                </button>
+              ))}
+          </div>
+        )}
+
+        <MessageContextMenu
+          anchor={menuAnchor}
+          items={buildMenuItems()}
+          onClose={() => setMenuAnchor(null)}
+          reactionEmojis={QUICK_REACTIONS}
+          onReact={handleReact}
+        />
+
+        <ReactionsListModal
+          open={reactionsListOpen}
+          onClose={() => setReactionsListOpen(false)}
+          reactions={message.reactions ?? {}}
+          participantProfiles={participantProfiles ?? {}}
+        />
       </div>
 
       {selectionMode && mine && (

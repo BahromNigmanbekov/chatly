@@ -1,33 +1,16 @@
 "use client";
 
-import {
-  FiBell,
-  FiGlobe,
-  FiHelpCircle,
-  FiInfo,
-  FiLock,
-  FiLogOut,
-  FiMoon,
-  FiSun,
-  FiUser,
-} from "react-icons/fi";
+import { FiEdit2 } from "react-icons/fi";
 import { Avatar } from "@/components/ui/Avatar";
+import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
-import { ProfileMenuRow } from "@/components/profile/ProfileMenuRow";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useModalStore } from "@/store/useModalStore";
-import { useUIStore } from "@/store/useUIStore";
-import { useToastStore } from "@/store/useToastStore";
-import { logoutUser } from "@/lib/firebase/auth";
-import { useRouter } from "next/navigation";
 
+/** Just your own profile card — app preferences and account actions live in Sozlamalar instead. */
 export default function ProfilePage() {
-  const router = useRouter();
   const profile = useAuthStore((s) => s.profile);
   const setEditProfileOpen = useModalStore((s) => s.setEditProfileOpen);
-  const theme = useUIStore((s) => s.theme);
-  const toggleTheme = useUIStore((s) => s.toggleTheme);
-  const showToast = useToastStore((s) => s.show);
 
   if (!profile) {
     return (
@@ -37,87 +20,24 @@ export default function ProfilePage() {
     );
   }
 
-  async function handleLogout() {
-    await logoutUser();
-    router.push("/login");
-  }
-
-  const comingSoon = () => showToast("Tez orada qo'shiladi");
-
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="shrink-0 border-b border-border px-4 py-3.5 text-center">
         <span className="font-display text-lg font-semibold text-text">Profil</span>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-        <div className="flex flex-col items-center gap-2 py-8">
-          <Avatar name={profile.displayName} photoURL={profile.photoURL} size="xl" />
-          <div className="text-center">
-            <div className="text-lg font-semibold text-text">{profile.displayName}</div>
-            <div className="text-sm text-text-muted">@{profile.username}</div>
-          </div>
+      <div className="flex min-h-0 flex-1 flex-col items-center gap-4 overflow-y-auto px-4 py-10">
+        <Avatar name={profile.displayName} photoURL={profile.photoURL} size="xl" ring />
+        <div className="text-center">
+          <div className="text-lg font-semibold text-text">{profile.displayName}</div>
+          <div className="text-sm text-text-muted">@{profile.username}</div>
         </div>
+        {profile.bio && <p className="max-w-xs text-center text-sm text-text">{profile.bio}</p>}
 
-        <div className="flex flex-col gap-6 px-4 pb-10">
-        <div>
-          <div className="px-4 pb-1.5 text-xs font-semibold uppercase tracking-wide text-text-muted">Hisob</div>
-          <div className="flex flex-col divide-y divide-border rounded-2xl border border-border bg-surface">
-            <ProfileMenuRow
-              icon={<FiUser className="h-4 w-4" />}
-              label="Profilni boshqarish"
-              onClick={() => setEditProfileOpen(true)}
-            />
-            <ProfileMenuRow
-              icon={<FiLock className="h-4 w-4" />}
-              label="Parol va xavfsizlik"
-              onClick={comingSoon}
-            />
-            <ProfileMenuRow
-              icon={<FiBell className="h-4 w-4" />}
-              label="Bildirishnomalar"
-              onClick={comingSoon}
-            />
-          </div>
-        </div>
-
-        <div>
-          <div className="px-4 pb-1.5 text-xs font-semibold uppercase tracking-wide text-text-muted">Ilova</div>
-          <div className="flex flex-col divide-y divide-border rounded-2xl border border-border bg-surface">
-            <ProfileMenuRow
-              icon={theme === "dark" ? <FiSun className="h-4 w-4" /> : <FiMoon className="h-4 w-4" />}
-              label="Mavzu"
-              trailing={theme === "dark" ? "Qorong'i" : "Yorug'"}
-              onClick={toggleTheme}
-            />
-            <ProfileMenuRow
-              icon={<FiGlobe className="h-4 w-4" />}
-              label="Til"
-              trailing="O'zbekcha"
-              onClick={comingSoon}
-            />
-            <ProfileMenuRow
-              icon={<FiHelpCircle className="h-4 w-4" />}
-              label="Yordam markazi"
-              onClick={comingSoon}
-            />
-            <ProfileMenuRow
-              icon={<FiInfo className="h-4 w-4" />}
-              label="Biz haqimizda"
-              onClick={comingSoon}
-            />
-          </div>
-        </div>
-
-          <div className="flex flex-col rounded-2xl border border-border bg-surface">
-            <ProfileMenuRow
-              icon={<FiLogOut className="h-4 w-4" />}
-              label="Chiqish"
-              danger
-              onClick={handleLogout}
-            />
-          </div>
-        </div>
+        <Button size="lg" onClick={() => setEditProfileOpen(true)} className="mt-2">
+          <FiEdit2 className="h-4 w-4" />
+          Tahrirlash
+        </Button>
       </div>
     </div>
   );

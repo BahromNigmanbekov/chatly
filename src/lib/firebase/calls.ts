@@ -18,8 +18,9 @@ const RINGING_TIMEOUT_MS = 45_000;
  * this phase): marks long-abandoned 1:1 "ringing" calls as missed. Group
  * calls skip "ringing" entirely (see types/call.ts) — there's no equivalent
  * unanswered-timeout state for those, so nothing to sweep. There's no
- * candidate/offer/answer cleanup either now that Daily owns the media
- * transport; an abandoned room is reclaimed by its own `exp` TTL regardless.
+ * candidate/offer/answer cleanup either now that LiveKit owns the media
+ * transport entirely — an abandoned room just empties out and LiveKit tears
+ * it down on its own once everyone's left.
  */
 export async function cleanupStaleCalls(chatId: string, uid: string) {
   const now = Date.now();

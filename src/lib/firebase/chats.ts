@@ -1,5 +1,5 @@
-import { addDoc, getDocs, query, serverTimestamp, where } from "firebase/firestore";
-import { chatsCol } from "@/lib/firebase/firestore";
+import { addDoc, arrayRemove, arrayUnion, getDocs, query, serverTimestamp, updateDoc, where } from "firebase/firestore";
+import { chatDoc, chatsCol } from "@/lib/firebase/firestore";
 import { sendMessage } from "@/lib/firebase/messages";
 
 /** Finds an existing 1:1 chat between the two users, or creates one. Returns the chat id. */
@@ -26,6 +26,7 @@ export async function getOrCreateDirectChat(uidA: string, uidB: string): Promise
     typingStatus: {},
     unreadCounts: { [uidA]: 0, [uidB]: 0 },
     pinnedMessageId: null,
+    pinnedBy: [],
     createdAt: serverTimestamp(),
   });
   return ref.id;
@@ -54,6 +55,7 @@ export async function createGroupChat(params: {
     typingStatus: {},
     unreadCounts,
     pinnedMessageId: null,
+    pinnedBy: [],
     createdAt: serverTimestamp(),
   });
 
@@ -72,4 +74,9 @@ export async function createGroupChat(params: {
   });
 
   return ref.id;
+}
+
+/** Pins/unpins a chat to the top of *this user's own* chat list — purely personal, doesn't affect other participants. */
+export async function toggleChatPin(chatId: string, uid: string, pin: boolean) {
+  await updateDoc(chatDoc(chatId), { pinnedBy: pin ? arrayUnion(uid) : arrayRemove(uid) });
 }

@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FiPhone, FiVideo } from "react-icons/fi";
+import { FiInfo, FiPhone, FiVideo } from "react-icons/fi";
 import { Avatar } from "@/components/ui/Avatar";
 import { BackButton } from "@/components/chat/BackButton";
+import { ChatDetailsPanel } from "@/components/chat/ChatDetailsPanel";
 import { PinnedMessageBar } from "@/components/chat/PinnedMessageBar";
 import { OnlineDot } from "@/components/presence/OnlineDot";
 import { TypingWave } from "@/components/presence/TypingWave";
+import { UserProfileModal } from "@/components/profile/UserProfileModal";
 import { otherParticipantId, useChatDisplay } from "@/hooks/useChatDisplay";
 import { isTypingEntryFresh } from "@/hooks/useTypingStatus";
 import { formatLastSeen } from "@/lib/utils/formatTime";
@@ -43,6 +45,8 @@ export function ChatHeader({ chat, uid, participantProfiles }: ChatHeaderProps) 
   const startGroupCall = useCallStore((s) => s.startGroupCall);
   const callPhase = useCallStore((s) => s.phase);
   const [, forceTick] = useState(0);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [viewProfileUid, setViewProfileUid] = useState<string | null>(null);
 
   const peerId = chat.type === "direct" ? otherParticipantId(chat, uid) : null;
 
@@ -124,8 +128,36 @@ export function ChatHeader({ chat, uid, participantProfiles }: ChatHeaderProps) 
             {info}
           </button>
         ) : (
-          <div className="min-w-0 flex-1">{info}</div>
+          <button
+            type="button"
+            onClick={() => setViewProfileUid(peerId)}
+            className="min-w-0 flex-1 rounded-lg text-left hover:bg-surface-raised"
+          >
+            {info}
+          </button>
         )}
+        {chat.type === "group" && (
+          <div className="hidden -space-x-2.5 sm:flex" aria-hidden>
+            {chat.participantIds.slice(0, 4).map((id) => {
+              const member = participantProfiles[id];
+              if (!member) return null;
+              return <Avatar key={id} name={member.displayName} photoURL={member.photoURL} size="sm" ring className="ring-2 ring-surface" />;
+            })}
+            {chat.participantIds.length > 4 && (
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-raised text-xs font-semibold text-text-muted ring-2 ring-surface">
+                +{chat.participantIds.length - 4}
+              </span>
+            )}
+          </div>
+        )}
+        <button
+          type="button"
+          onClick={() => setDetailsOpen(true)}
+          aria-label="Suhbat ma'lumoti"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-muted hover:bg-surface-raised lg:hidden"
+        >
+          <FiInfo className="h-5 w-5" />
+        </button>
         <CallButton kind="audio" disabled={callPhase !== "idle"} onClick={() => handleStartCall("audio")} />
         <CallButton kind="video" disabled={callPhase !== "idle"} onClick={() => handleStartCall("video")} />
       </div>
@@ -136,6 +168,8 @@ export function ChatHeader({ chat, uid, participantProfiles }: ChatHeaderProps) 
           canUnpin={chat.type === "direct" || chat.adminIds.includes(uid)}
         />
       )}
+      <ChatDetailsPanel chat={chat} uid={uid} open={detailsOpen} onClose={() => setDetailsOpen(false)} />
+      <UserProfileModal uid={viewProfileUid} open={viewProfileUid !== null} onClose={() => setViewProfileUid(null)} />
     </div>
   );
 }

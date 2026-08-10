@@ -1,4 +1,5 @@
 import {
+  arrayRemove,
   arrayUnion,
   deleteField,
   doc,
@@ -77,6 +78,7 @@ export async function sendMessage(params: SendMessageParams): Promise<string> {
     card: params.card ?? null,
     expiresAt: params.expiresAt ?? null,
     voiceExpired: false,
+    reactions: {},
     createdAt: serverTimestamp(),
   });
 
@@ -170,6 +172,12 @@ export async function expireVoiceMessage(chatId: string, messageId: string) {
   await updateDoc(doc(messagesCol(chatId), messageId), {
     mediaURL: null,
     voiceExpired: true,
+  });
+}
+
+export async function toggleReaction(chatId: string, messageId: string, uid: string, emoji: string, reacted: boolean) {
+  await updateDoc(doc(messagesCol(chatId), messageId), {
+    [`reactions.${emoji}`]: reacted ? arrayUnion(uid) : arrayRemove(uid),
   });
 }
 

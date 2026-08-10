@@ -30,5 +30,7 @@ export interface Chat {
   typingStatus: Record<string, TypingEntry>;
   unreadCounts: Record<string, number>;
   pinnedMessageId: string | null;
+  /** Uids who've pinned this *chat* to the top of their own chat list — per-user, not shared like pinnedMessageId. */
+  pinnedBy: string[];
   createdAt: Timestamp | null;
 }

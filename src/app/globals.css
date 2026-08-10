@@ -1,67 +1,70 @@
 @import "tailwindcss";
 
 :root {
-  --color-bg: #ffffff;
+  --color-bg: #f4f5f9;
   --color-surface: #ffffff;
-  --color-surface-raised: #f2f2f7;
-  --color-border: #e5e5ea;
-  --color-text: #1c1c1e;
-  --color-text-muted: #8e8e93;
-  --color-primary: #0a6cff;
-  --color-primary-hover: #0857d1;
-  --color-primary-soft: #e8f1ff;
-  --color-accent: #ff3b30;
-  --color-accent-soft: #ffe5e3;
-  --color-danger: #d92d20;
-  --color-online: #34c759;
-  --color-tab-active: #1c1c1e;
-  --color-bubble-mine: #0a6cff;
+  --color-surface-raised: #eef0f7;
+  --color-border: #e2e4ee;
+  --color-text: #14151f;
+  --color-text-muted: #767a8c;
+  --color-primary: #3f7cf9;
+  --color-primary-hover: #2f68e0;
+  --color-primary-soft: #e8eefe;
+  --color-accent: #7c5cfc;
+  --color-accent-soft: #efe9ff;
+  --color-danger: #ef4444;
+  --color-online: #22c55e;
+  --color-tab-active: #14151f;
+  --color-bubble-mine: #3f7cf9;
   --color-bubble-mine-text: #ffffff;
-  --color-bubble-theirs: #f0f0f2;
-  --color-bubble-theirs-text: #1c1c1e;
+  --color-bubble-theirs: #eef0f7;
+  --color-bubble-theirs-text: #14151f;
+  --color-rail-bg: #0d0f1a;
 }
 
 :root[data-theme="dark"] {
-  --color-bg: #000000;
-  --color-surface: #1c1c1e;
-  --color-surface-raised: #2c2c2e;
-  --color-border: #38383a;
-  --color-text: #f2f2f7;
-  --color-text-muted: #98989d;
-  --color-primary: #0a84ff;
-  --color-primary-hover: #3d9bff;
-  --color-primary-soft: #10243d;
-  --color-accent: #ff453a;
-  --color-accent-soft: #3a1613;
-  --color-danger: #ff6961;
-  --color-online: #30d158;
+  --color-bg: #0a0b12;
+  --color-surface: #12141f;
+  --color-surface-raised: #1a1d2b;
+  --color-border: #242737;
+  --color-text: #f3f4f9;
+  --color-text-muted: #888ca3;
+  --color-primary: #4f8dfd;
+  --color-primary-hover: #6ea0fd;
+  --color-primary-soft: #1a2540;
+  --color-accent: #8b6bfd;
+  --color-accent-soft: #241a45;
+  --color-danger: #f87171;
+  --color-online: #34d399;
   --color-tab-active: #ffffff;
-  --color-bubble-mine: #0a84ff;
+  --color-bubble-mine: #4f6bfd;
   --color-bubble-mine-text: #ffffff;
-  --color-bubble-theirs: #262629;
-  --color-bubble-theirs-text: #f2f2f7;
+  --color-bubble-theirs: #1a1d2b;
+  --color-bubble-theirs-text: #f3f4f9;
+  --color-rail-bg: #0a0b12;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --color-bg: #000000;
-    --color-surface: #1c1c1e;
-    --color-surface-raised: #2c2c2e;
-    --color-border: #38383a;
-    --color-text: #f2f2f7;
-    --color-text-muted: #98989d;
-    --color-primary: #0a84ff;
-    --color-primary-hover: #3d9bff;
-    --color-primary-soft: #10243d;
-    --color-accent: #ff453a;
-    --color-accent-soft: #3a1613;
-    --color-danger: #ff6961;
-    --color-online: #30d158;
+    --color-bg: #0a0b12;
+    --color-surface: #12141f;
+    --color-surface-raised: #1a1d2b;
+    --color-border: #242737;
+    --color-text: #f3f4f9;
+    --color-text-muted: #888ca3;
+    --color-primary: #4f8dfd;
+    --color-primary-hover: #6ea0fd;
+    --color-primary-soft: #1a2540;
+    --color-accent: #8b6bfd;
+    --color-accent-soft: #241a45;
+    --color-danger: #f87171;
+    --color-online: #34d399;
     --color-tab-active: #ffffff;
-    --color-bubble-mine: #0a84ff;
+    --color-bubble-mine: #4f6bfd;
     --color-bubble-mine-text: #ffffff;
-    --color-bubble-theirs: #262629;
-    --color-bubble-theirs-text: #f2f2f7;
+    --color-bubble-theirs: #1a1d2b;
+    --color-bubble-theirs-text: #f3f4f9;
+    --color-rail-bg: #0a0b12;
   }
 }
 
@@ -84,6 +87,7 @@
   --color-bubble-mine-text: var(--color-bubble-mine-text);
   --color-bubble-theirs: var(--color-bubble-theirs);
   --color-bubble-theirs-text: var(--color-bubble-theirs-text);
+  --color-rail-bg: var(--color-rail-bg);
   --font-sans: var(--font-inter);
   --font-display: var(--font-inter);
   --safe-top: env(safe-area-inset-top, 0px);
@@ -95,6 +99,33 @@
 body {
   background: var(--color-bg);
   color: var(--color-text);
+}
+
+/* Scrollbars follow the theme instead of the browser's default (always-white) chrome. */
+* {
+  scrollbar-color: var(--color-border) transparent;
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--color-border);
+  border-radius: 999px;
+  border: 2px solid var(--color-bg);
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-text-muted);
+  background-clip: padding-box;
 }
 
 * {

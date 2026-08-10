@@ -2,6 +2,7 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
+import { IconRail } from "@/components/chat/IconRail";
 import { MobileTabBar } from "@/components/chat/MobileTabBar";
 import { Sidebar } from "@/components/chat/Sidebar";
 import { CallProvider } from "@/components/calls/CallProvider";
@@ -32,11 +33,12 @@ export default function MainLayout({ children }: { children: ReactNode }) {
   // "/", everything else (open chat, profile, search, group flows) takes the
   // full screen. Desktop always shows both panes side by side.
   const isHome = pathname === "/";
-  const showTabBar = pathname === "/" || pathname === "/profile";
+  const showTabBar = ["/", "/contacts", "/settings", "/profile"].includes(pathname);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex min-h-0 flex-1">
+        <IconRail />
         <aside
           className={cn(
             "w-full shrink-0 flex-col border-border bg-surface md:flex md:w-95 md:border-r",

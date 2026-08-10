@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ChatDetailsAside } from "@/components/chat/ChatDetailsPanel";
 import { ChatHeader } from "@/components/chat/ChatHeader";
 import { MessageInput } from "@/components/chat/MessageInput";
 import { MessageList } from "@/components/chat/MessageList";
@@ -28,26 +29,30 @@ export function ChatWindow({ chat, uid }: { chat: Chat; uid: string }) {
   const canPost = !chat.onlyAdminsCanPost || chat.adminIds.includes(uid);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <ChatHeader chat={chat} uid={uid} participantProfiles={participantProfiles} />
-      <MessageList
-        chat={chat}
-        uid={uid}
-        senderNames={senderNames}
-        onReply={setReplyingTo}
-        onEdit={setEditingMessage}
-      />
-      <MessageInput
-        chatId={chat.id}
-        uid={uid}
-        participantIds={chat.participantIds}
-        disabled={!canPost}
-        replyingTo={replyingTo}
-        onCancelReply={() => setReplyingTo(null)}
-        senderNames={senderNames}
-        editingMessage={editingMessage}
-        onCancelEdit={() => setEditingMessage(null)}
-      />
+    <div className="flex min-h-0 flex-1">
+      <div className="flex min-h-0 flex-1 flex-col">
+        <ChatHeader chat={chat} uid={uid} participantProfiles={participantProfiles} />
+        <MessageList
+          chat={chat}
+          uid={uid}
+          senderNames={senderNames}
+          participantProfiles={participantProfiles}
+          onReply={setReplyingTo}
+          onEdit={setEditingMessage}
+        />
+        <MessageInput
+          chatId={chat.id}
+          uid={uid}
+          participantIds={chat.participantIds}
+          disabled={!canPost}
+          replyingTo={replyingTo}
+          onCancelReply={() => setReplyingTo(null)}
+          senderNames={senderNames}
+          editingMessage={editingMessage}
+          onCancelEdit={() => setEditingMessage(null)}
+        />
+      </div>
+      <ChatDetailsAside chat={chat} uid={uid} />
     </div>
   );
 }

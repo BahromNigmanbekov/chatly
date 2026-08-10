@@ -41,5 +41,9 @@ export interface ChatMessage {
   expiresAt: Timestamp | null;
   /** Voice messages only: true once the sweep has cleared its media. */
   voiceExpired: boolean;
+  /** Emoji -> uids who reacted with it. */
+  reactions: Record<string, string[]>;
   createdAt: Timestamp | null;
 }
+
+export const QUICK_REACTIONS = ["❤️", "😂", "👍", "😮", "😢", "🙏"] as const;

@@ -2,15 +2,47 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FiMessageCircle } from "react-icons/fi";
+import { FiMessageCircle, FiSettings, FiUsers } from "react-icons/fi";
 import { Avatar } from "@/components/ui/Avatar";
+import { useChats } from "@/hooks/useChats";
 import { useAuthStore } from "@/store/useAuthStore";
 import { cn } from "@/lib/utils/cn";
 
+function TabLink({
+  href,
+  label,
+  active,
+  children,
+}: {
+  href: string;
+  label: string;
+  active: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs font-medium",
+        active ? "text-tab-active" : "text-text-muted",
+      )}
+      aria-current={active ? "page" : undefined}
+    >
+      {children}
+      {label}
+    </Link>
+  );
+}
+
 export function MobileTabBar() {
   const pathname = usePathname();
+  const uid = useAuthStore((s) => s.firebaseUser?.uid);
   const profile = useAuthStore((s) => s.profile);
-  const isChats = pathname === "/";
+  const { chats } = useChats(uid);
+  const totalUnread = chats.reduce((sum, chat) => sum + (chat.unreadCounts?.[uid ?? ""] ?? 0), 0);
+  const isChats = pathname === "/" || pathname.startsWith("/chats/");
+  const isContacts = pathname === "/contacts";
+  const isSettings = pathname === "/settings";
   const isProfile = pathname === "/profile";
 
   return (
@@ -19,33 +51,33 @@ export function MobileTabBar() {
       style={{ paddingBottom: "var(--safe-bottom)" }}
       aria-label="Asosiy navigatsiya"
     >
-      <Link
-        href="/"
-        className={cn(
-          "flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs font-medium",
-          isChats ? "text-tab-active" : "text-text-muted",
-        )}
-        aria-current={isChats ? "page" : undefined}
-      >
-        <FiMessageCircle className="h-6 w-6" aria-hidden />
-        Suhbatlar
-      </Link>
-      <Link
-        href="/profile"
-        className={cn(
-          "flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs font-medium",
-          isProfile ? "text-tab-active" : "text-text-muted",
-        )}
-        aria-current={isProfile ? "page" : undefined}
-      >
+      <TabLink href="/" label="Chatlar" active={isChats}>
+        <span className="relative">
+          <FiMessageCircle className="h-6 w-6" aria-hidden />
+          {totalUnread > 0 && (
+            <span className="absolute -right-2 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-white">
+              {totalUnread > 99 ? "99+" : totalUnread}
+            </span>
+          )}
+        </span>
+      </TabLink>
+
+      <TabLink href="/contacts" label="Kontaktlar" active={isContacts}>
+        <FiUsers className="h-6 w-6" aria-hidden />
+      </TabLink>
+
+      <TabLink href="/settings" label="Sozlamalar" active={isSettings}>
+        <FiSettings className="h-6 w-6" aria-hidden />
+      </TabLink>
+
+      <TabLink href="/profile" label="Profil" active={isProfile}>
         <Avatar
           name={profile?.displayName ?? "?"}
           photoURL={profile?.photoURL}
           size="sm"
           className={cn(isProfile && "ring-2 ring-tab-active")}
         />
-        Profil
-      </Link>
+      </TabLink>
     </nav>
   );
 }
