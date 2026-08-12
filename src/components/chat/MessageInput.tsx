@@ -127,7 +127,7 @@ export function MessageInput({
 
   if (disabled) {
     return (
-      <div className="px-4 py-3 text-center text-sm" style={{ color: "#6B6875" }}>
+      <div className="rounded-t-2xl bg-surface px-4 py-3 text-center text-sm text-white/60">
         Bu guruhda faqat adminlar xabar yubora oladi
       </div>
     );
@@ -135,9 +135,9 @@ export function MessageInput({
 
   if (recorder.recording) {
     return (
-      <div className="flex items-center gap-3 px-4 py-3">
+      <div className="flex items-center gap-3 rounded-t-2xl bg-surface px-4 py-3">
         <span className="flex h-3 w-3 shrink-0 animate-pulse rounded-full bg-danger" />
-        <span className="flex-1 text-sm" style={{ color: "#2A2A35" }}>Ovozli xabar yozilmoqda... {formatDuration(recorder.elapsedMs / 1000)}</span>
+        <span className="flex-1 text-sm text-white">Ovozli xabar yozilmoqda... {formatDuration(recorder.elapsedMs / 1000)}</span>
         <Button variant="danger" size="sm" onClick={() => { recorder.cancel(); setTyping(null); }}>
           Bekor qilish
         </Button>
@@ -149,10 +149,10 @@ export function MessageInput({
   }
 
   return (
-    <div style={{ paddingBottom: "var(--safe-bottom)" }}>
+    <div className="rounded-t-2xl bg-surface" style={{ paddingBottom: "var(--safe-bottom)" }}>
       {editingMessage ? (
-        <div className="flex items-center gap-2 px-3 py-1.5 text-xs" style={{ background: "rgba(255,255,255,0.25)" }}>
-          <span className="flex-1 font-medium" style={{ color: "#2A2A35" }}>Xabarni tahrirlash</span>
+        <div className="flex items-center gap-2 rounded-t-2xl bg-white/10 px-3 py-1.5 text-xs">
+          <span className="flex-1 font-medium text-white">Xabarni tahrirlash</span>
           <button
             type="button"
             onClick={() => {
@@ -160,7 +160,7 @@ export function MessageInput({
               setText("");
             }}
             aria-label="Tahrirlashni bekor qilish"
-            style={{ color: "#6B6875" }}
+            className="text-white/60 hover:text-white"
           >
             <FiX className="h-4 w-4" />
           </button>
@@ -195,8 +195,7 @@ export function MessageInput({
           onClick={() => setPickerOpen(true)}
           aria-label="Fayl biriktirish"
           disabled={uploadProgress !== null}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full hover:bg-black/5 disabled:opacity-50"
-          style={{ color: "#6B6875" }}
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white/60 hover:bg-white/10 disabled:opacity-50"
         >
           <FiPaperclip className="h-5 w-5" />
         </button>
@@ -219,12 +218,12 @@ export function MessageInput({
               void handleSendText();
             }
           }}
-          className="no-focus-ring max-h-32 min-h-10.5 flex-1 resize-none rounded-full border-none px-4 py-2.5 text-sm outline-none placeholder:text-[#6B6875] focus:outline-none focus:ring-0 focus-visible:outline-none"
-          style={{ background: "rgba(255,255,255,0.35)", color: "#2A2A35" }}
+          className="no-focus-ring max-h-32 min-h-10.5 flex-1 resize-none rounded-full border-none px-4 py-2.5 text-sm text-white outline-none placeholder:text-[#6B6875] focus:outline-none focus:ring-0 focus-visible:outline-none"
+          style={{ background: "#1C1C1E" }}
         />
 
         {uploadProgress !== null && (
-          <span className="text-xs" style={{ color: "#6B6875" }}>{Math.round(uploadProgress)}%</span>
+          <span className="text-xs text-white/60">{Math.round(uploadProgress)}%</span>
         )}
 
         {text.trim() ? (
@@ -232,8 +231,8 @@ export function MessageInput({
             type="button"
             onClick={handleSendText}
             aria-label={editingMessage ? "Saqlash" : "Yuborish"}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white"
-            style={{ background: "#3A3845" }}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+            style={{ background: "#CFCCE4", color: "#1C1B2E" }}
           >
             {editingMessage ? <FiCheck className="h-4 w-4" /> : <IoSend className="h-4 w-4" />}
           </button>
@@ -252,8 +251,8 @@ export function MessageInput({
               void handleRecordStop();
             }}
             aria-label="Ovozli xabar yozish uchun bosib turing"
-            className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white")}
-            style={{ background: "#3A3845" }}
+            className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-full")}
+            style={{ background: "#CFCCE4", color: "#1C1B2E" }}
           >
             <IoMic className="h-4 w-4" />
           </button>

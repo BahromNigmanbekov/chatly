@@ -53,13 +53,15 @@ export function Avatar({ name, photoURL, size = "md", className, ring }: AvatarP
     );
   }
 
+  // A translucent theme-tinted fill only reads against the one background it
+  // was tuned for — this needs to stay legible on both the black app shell
+  // and the white sidebar header, so the fallback avatar is its own opaque,
+  // per-name color (reusing the same hash as the ring) rather than a
+  // semi-transparent token.
   return (
     <div
-      className={cn(
-        "flex items-center justify-center rounded-full bg-primary-soft text-primary font-display font-semibold shrink-0",
-        className,
-      )}
-      style={{ width: px, height: px, fontSize: px * 0.36, ...ringStyle }}
+      className={cn("flex items-center justify-center rounded-full font-display font-semibold text-white shrink-0", className)}
+      style={{ width: px, height: px, fontSize: px * 0.36, backgroundColor: ringColorFor(name), ...ringStyle }}
     >
       {initialsFrom(name)}
     </div>

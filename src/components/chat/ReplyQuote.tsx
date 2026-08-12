@@ -1,7 +1,6 @@
 "use client";
 
 import { FiX } from "react-icons/fi";
-import { EmojiText } from "@/components/ui/Emoji";
 import { cn } from "@/lib/utils/cn";
 
 interface ReplyQuoteProps {
@@ -24,9 +23,7 @@ export function ReplyQuote({ senderName, textPreview, onClick, onCancel, tone = 
     >
       <div className="min-w-0 flex-1">
         <div className={cn("font-medium", tone === "onBubble" ? "text-inherit" : "text-primary")}>{senderName}</div>
-        <div className={cn("truncate", tone === "onBubble" ? "opacity-80" : "text-text-muted")}>
-          <EmojiText text={textPreview} />
-        </div>
+        <div className={cn("truncate", tone === "onBubble" ? "opacity-80" : "text-text-muted")}>{textPreview}</div>
       </div>
       {onCancel && (
         <button

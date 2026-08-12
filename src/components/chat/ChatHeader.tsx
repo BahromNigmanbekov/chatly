@@ -30,7 +30,7 @@ function GlassButton({ label, onClick, disabled, children }: { label: string; on
       disabled={disabled}
       onClick={onClick}
       aria-label={label}
-      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-black/12 text-[#2A2A35] disabled:opacity-40"
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/12 text-white disabled:opacity-40"
     >
       {children}
     </button>
@@ -72,24 +72,24 @@ export function ChatHeader({ chat, uid, participantProfiles }: ChatHeaderProps) 
     if (chat.type === "group") {
       const names = typingEntries.map(([id]) => participantProfiles[id]?.displayName?.split(" ")[0] ?? "kimdir");
       subtitle = (
-        <span className="flex min-w-0 items-center gap-1.5 text-xs text-[#2A2A35]/60">
+        <span className="flex min-w-0 items-center gap-1.5 text-xs text-white/60">
           <span className="truncate">{names.join(", ")}</span>
           <TypingWave variant={variant} />
         </span>
       );
     } else {
       subtitle = (
-        <span className="flex min-w-0 items-center gap-1.5 text-xs text-[#2A2A35]/60">
+        <span className="flex min-w-0 items-center gap-1.5 text-xs text-white/60">
           <span className="truncate">{variant === "voice" ? "ovozli xabar yozmoqda" : "yozmoqda"}</span>
           <TypingWave variant={variant} />
         </span>
       );
     }
   } else if (chat.type === "group") {
-    subtitle = <span className="block truncate text-xs text-[#2A2A35]/60">{chat.participantIds.length} a&apos;zo</span>;
+    subtitle = <span className="block truncate text-xs text-white/60">{chat.participantIds.length} a&apos;zo</span>;
   } else {
     subtitle = (
-      <span className="block truncate text-xs text-[#2A2A35]/60">
+      <span className="block truncate text-xs text-white/60">
         {presence.online ? "onlayn" : formatLastSeen(presence.lastSeen)}
       </span>
     );
@@ -101,10 +101,7 @@ export function ChatHeader({ chat, uid, participantProfiles }: ChatHeaderProps) 
   }
 
   return (
-    <div
-      className="sticky top-0 z-20"
-      style={{ background: "transparent", backdropFilter: "blur(20px)", border: "none", boxShadow: "none" }}
-    >
+    <div className="sticky top-0 z-20 rounded-b-2xl bg-black">
       <div
         className="flex items-center gap-3 px-5 py-2.5"
         style={{ paddingTop: "calc(var(--safe-top) + 0.625rem)" }}
@@ -118,7 +115,7 @@ export function ChatHeader({ chat, uid, participantProfiles }: ChatHeaderProps) 
             )}
           </div>
           <div className="min-w-0">
-            <div className="line-clamp-2 text-[15px] font-semibold text-[#2A2A35]">{name}</div>
+            <div className="line-clamp-2 text-[15px] leading-snug font-semibold text-white">{name}</div>
             {subtitle}
           </div>
         </button>

@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
 import { TbPinFilled } from "react-icons/tb";
 import { Avatar } from "@/components/ui/Avatar";
-import { EmojiText } from "@/components/ui/Emoji";
 import { MessageContextMenu, type MessageMenuItem } from "@/components/chat/MessageContextMenu";
 import { ReadStatusTicks } from "@/components/chat/ReadStatusTicks";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -94,7 +93,7 @@ export function ChatListItem({ chat }: { chat: Chat }) {
               {isMine && chat.lastMessage && (
                 <ReadStatusTicks status={chat.lastMessage.status ?? "sent"} tone="muted" />
               )}
-              <span className="truncate"><EmojiText text={preview} /></span>
+              <span className="truncate">{preview}</span>
             </span>
             {unread > 0 && (
               <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-white px-1.5 text-xs font-semibold text-black">

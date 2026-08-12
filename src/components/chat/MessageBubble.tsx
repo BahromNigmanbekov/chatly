@@ -12,7 +12,6 @@ import { ReplyQuote } from "@/components/chat/ReplyQuote";
 import { RichContentCard } from "@/components/chat/RichContentCard";
 import { VoiceExpiryBadge } from "@/components/chat/VoiceExpiryBadge";
 import { Avatar } from "@/components/ui/Avatar";
-import { Emoji, EmojiText } from "@/components/ui/Emoji";
 import { useEmulator } from "@/lib/firebase/client";
 import { pinMessage, toggleReaction, unpinMessage } from "@/lib/firebase/messages";
 import { useModalStore } from "@/store/useModalStore";
@@ -220,7 +219,7 @@ export function MessageBubble({
 
             {message.type === "text" && (
               <p className="whitespace-pre-wrap wrap-anywhere leading-snug">
-                <EmojiText text={message.content ?? ""} />
+                {message.content}
                 <span className="ml-1.5 inline-flex items-center gap-1 align-bottom whitespace-nowrap" style={{ opacity: 0.55 }}>
                   {message.isEdited && <span style={{ fontSize: 9.5 }}>tahrirlangan</span>}
                   <span style={{ fontSize: 9.5 }}>{formatMessageTime(message.createdAt)}</span>
@@ -317,10 +316,10 @@ export function MessageBubble({
               {shown.map(([emoji], i) => (
                 <span
                   key={emoji}
-                  className="flex h-5 w-5 items-center justify-center rounded-full bg-white p-0.5"
+                  className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs"
                   style={{ marginLeft: i === 0 ? 0 : -6 }}
                 >
-                  <Emoji emoji={emoji} />
+                  {emoji}
                 </span>
               ))}
               {totalCount > 1 && (

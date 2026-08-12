@@ -1,7 +1,6 @@
 "use client";
 
 import { Avatar } from "@/components/ui/Avatar";
-import { Emoji } from "@/components/ui/Emoji";
 import { Modal } from "@/components/ui/Modal";
 import type { Story } from "@/types/story";
 import type { UserProfile } from "@/types/user";
@@ -31,9 +30,7 @@ export function StoryViewersModal({ story, profiles, onClose }: StoryViewersModa
               <div key={viewerUid} className="flex items-center gap-3 rounded-xl px-2 py-2">
                 <Avatar name={profile?.displayName ?? "..."} photoURL={profile?.photoURL} size="sm" ring />
                 <span className="flex-1 truncate text-sm text-text">{profile?.displayName ?? "Foydalanuvchi"}</span>
-                {reactionByUid.has(viewerUid) && (
-                  <span className="h-5 w-5"><Emoji emoji={reactionByUid.get(viewerUid)!} /></span>
-                )}
+                {reactionByUid.has(viewerUid) && <span className="text-lg">{reactionByUid.get(viewerUid)}</span>}
               </div>
             );
           })

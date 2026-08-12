@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Emoji } from "@/components/ui/Emoji";
 import { cn } from "@/lib/utils/cn";
 
 export interface MessageMenuItem {
@@ -69,9 +68,9 @@ export function MessageContextMenu({ anchor, items, onClose, reactionEmojis, onR
                   onClose();
                 }}
                 aria-label={`${emoji} bilan javob berish`}
-                className="flex h-8 w-8 items-center justify-center rounded-full p-1.5 hover:bg-surface-raised hover:scale-110 transition-transform"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-lg hover:bg-surface-raised hover:scale-110 transition-transform"
               >
-                <Emoji emoji={emoji} />
+                {emoji}
               </button>
             ))}
           </div>

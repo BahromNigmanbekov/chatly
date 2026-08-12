@@ -82,19 +82,19 @@ export function StoryTray() {
         <div className="flex shrink-0 flex-col items-center gap-1">
           <div className="relative">
             <button type="button" onClick={() => setViewingUid(uid)} disabled={uploading} aria-label="Statusni ko'rish">
-              <Avatar name={profile?.displayName ?? "Men"} photoURL={profile?.photoURL} size="story" className="ring-2 ring-white/40" />
+              <Avatar name={profile?.displayName ?? "Men"} photoURL={profile?.photoURL} size="story" className="ring-2 ring-black/20" />
             </button>
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
               aria-label="Status qo'shish"
-              className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#cfcce4] text-[#1c1b2e] ring-2 ring-black"
+              className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-black text-white ring-2 ring-white"
             >
-              {uploading ? <Spinner className="h-3 w-3 border-[#1c1b2e]/40 border-t-[#1c1b2e]" /> : <FiPlus className="h-3 w-3" />}
+              {uploading ? <Spinner className="h-3 w-3 border-white/40 border-t-white" /> : <FiPlus className="h-3 w-3" />}
             </button>
           </div>
-          <span className="max-w-16 truncate text-[11px] text-white/70">Siz</span>
+          <span className="max-w-16 truncate text-[11px] text-black/60">Siz</span>
         </div>
       ) : (
         <button
@@ -104,10 +104,10 @@ export function StoryTray() {
           aria-label="Status qo'shish"
           className="flex shrink-0 flex-col items-center gap-1"
         >
-          <span className="flex h-14 w-14 items-center justify-center rounded-full border border-dashed border-white/50 text-white">
-            {uploading ? <Spinner className="h-4 w-4 border-white/40 border-t-white" /> : <FiPlus className="h-5 w-5" />}
+          <span className="flex h-14 w-14 items-center justify-center rounded-full border border-dashed border-black/30 text-black">
+            {uploading ? <Spinner className="h-4 w-4 border-black/30 border-t-black" /> : <FiPlus className="h-5 w-5" />}
           </span>
-          <span className="text-[11px] text-white/70">Add</span>
+          <span className="text-[11px] text-black/60">Add</span>
         </button>
       )}
 
@@ -121,8 +121,8 @@ export function StoryTray() {
             onClick={() => setViewingUid(contactId)}
             className="flex shrink-0 flex-col items-center gap-1"
           >
-            <Avatar name={contactProfile.displayName} photoURL={contactProfile.photoURL} size="story" className="ring-2 ring-white/40" />
-            <span className="max-w-16 truncate text-[11px] text-white/70">{contactProfile.displayName.split(" ")[0]}</span>
+            <Avatar name={contactProfile.displayName} photoURL={contactProfile.photoURL} size="story" className="ring-2 ring-black/20" />
+            <span className="max-w-16 truncate text-[11px] text-black/60">{contactProfile.displayName.split(" ")[0]}</span>
           </button>
         );
       })}
