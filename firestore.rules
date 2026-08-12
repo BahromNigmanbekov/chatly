@@ -39,6 +39,37 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // ---- stories (24h status updates) --------------------------------------
+    match /stories/{storyId} {
+      function isStoryOwner() {
+        return isSignedIn() && resource.data.uid == request.auth.uid;
+      }
+      function isSelfViewToggle() {
+        return affectedKeys().hasOnly(['viewedBy'])
+          && request.auth.uid in request.resource.data.viewedBy
+          && request.resource.data.viewedBy.size() == resource.data.viewedBy.size() + 1;
+      }
+
+      // Public-to-signed-in-users read, same trust level as /users — a story
+      // is only ever surfaced client-side to the author's own contacts anyway.
+      allow read: if isSignedIn();
+
+      allow create: if isSignedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.viewedBy == []
+        && request.resource.data.reactions == {};
+
+      // Reactions: any signed-in user, matching the same field-only (not
+      // self-only) trust level already used for chat-message reactions —
+      // validating a single self-toggle inside a nested emoji->uids map isn't
+      // worth the added rule complexity here.
+      allow update: if isStoryOwner()
+        || isSelfViewToggle()
+        || (isSignedIn() && affectedKeys().hasOnly(['reactions']));
+
+      allow delete: if isStoryOwner();
+    }
+
     // ---- usernames (uniqueness claims) ------------------------------------
     match /usernames/{username} {
       function validFormat() {

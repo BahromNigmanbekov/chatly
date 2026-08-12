@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Timestamp } from "firebase/firestore";
-import { FiCheck, FiMic, FiPaperclip, FiSend, FiX } from "react-icons/fi";
+import { FiCheck, FiPaperclip, FiX } from "react-icons/fi";
+import { IoMic, IoSend } from "react-icons/io5";
 import { Button } from "@/components/ui/Button";
 import { MediaPickerSheet } from "@/components/chat/MediaPickerSheet";
 import { MediaSendPreviewModal } from "@/components/chat/MediaSendPreviewModal";
@@ -126,7 +127,7 @@ export function MessageInput({
 
   if (disabled) {
     return (
-      <div className="border-t border-border px-4 py-3 text-center text-sm text-text-muted">
+      <div className="px-4 py-3 text-center text-sm" style={{ color: "#6B6875" }}>
         Bu guruhda faqat adminlar xabar yubora oladi
       </div>
     );
@@ -134,9 +135,9 @@ export function MessageInput({
 
   if (recorder.recording) {
     return (
-      <div className="flex items-center gap-3 border-t border-border px-4 py-3">
+      <div className="flex items-center gap-3 px-4 py-3">
         <span className="flex h-3 w-3 shrink-0 animate-pulse rounded-full bg-danger" />
-        <span className="flex-1 text-sm text-text">Ovozli xabar yozilmoqda... {formatDuration(recorder.elapsedMs / 1000)}</span>
+        <span className="flex-1 text-sm" style={{ color: "#2A2A35" }}>Ovozli xabar yozilmoqda... {formatDuration(recorder.elapsedMs / 1000)}</span>
         <Button variant="danger" size="sm" onClick={() => { recorder.cancel(); setTyping(null); }}>
           Bekor qilish
         </Button>
@@ -148,10 +149,10 @@ export function MessageInput({
   }
 
   return (
-    <div className="border-t border-border" style={{ paddingBottom: "var(--safe-bottom)" }}>
+    <div style={{ paddingBottom: "var(--safe-bottom)" }}>
       {editingMessage ? (
-        <div className="flex items-center gap-2 border-b border-border bg-surface-raised px-3 py-1.5 text-xs">
-          <span className="flex-1 font-medium text-primary">Xabarni tahrirlash</span>
+        <div className="flex items-center gap-2 px-3 py-1.5 text-xs" style={{ background: "rgba(255,255,255,0.25)" }}>
+          <span className="flex-1 font-medium" style={{ color: "#2A2A35" }}>Xabarni tahrirlash</span>
           <button
             type="button"
             onClick={() => {
@@ -159,14 +160,14 @@ export function MessageInput({
               setText("");
             }}
             aria-label="Tahrirlashni bekor qilish"
-            className="text-text-muted hover:text-text"
+            style={{ color: "#6B6875" }}
           >
             <FiX className="h-4 w-4" />
           </button>
         </div>
       ) : (
         replyingTo && (
-          <div className="border-b border-border px-3 py-1.5">
+          <div className="px-3 py-1.5">
             <ReplyQuote
               senderName={senderNames[replyingTo.senderId] ?? "Kimdir"}
               textPreview={messagePreviewText(replyingTo)}
@@ -194,7 +195,8 @@ export function MessageInput({
           onClick={() => setPickerOpen(true)}
           aria-label="Fayl biriktirish"
           disabled={uploadProgress !== null}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-muted hover:bg-surface-raised disabled:opacity-50"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full hover:bg-black/5 disabled:opacity-50"
+          style={{ color: "#6B6875" }}
         >
           <FiPaperclip className="h-5 w-5" />
         </button>
@@ -203,7 +205,7 @@ export function MessageInput({
           ref={textareaRef}
           value={text}
           rows={1}
-          placeholder="Xabar yozing..."
+          placeholder="Your Message..."
           onChange={(e) => {
             setText(e.target.value);
             setTyping(e.target.value.trim() ? "text" : null);
@@ -217,17 +219,24 @@ export function MessageInput({
               void handleSendText();
             }
           }}
-          className="max-h-32 min-h-11 flex-1 resize-none rounded-2xl border border-border bg-surface px-4 py-2.5 text-sm text-text placeholder:text-text-muted focus-visible:border-primary"
+          className="no-focus-ring max-h-32 min-h-10.5 flex-1 resize-none rounded-full border-none px-4 py-2.5 text-sm outline-none placeholder:text-[#6B6875] focus:outline-none focus:ring-0 focus-visible:outline-none"
+          style={{ background: "rgba(255,255,255,0.35)", color: "#2A2A35" }}
         />
 
         {uploadProgress !== null && (
-          <span className="text-xs text-text-muted">{Math.round(uploadProgress)}%</span>
+          <span className="text-xs" style={{ color: "#6B6875" }}>{Math.round(uploadProgress)}%</span>
         )}
 
         {text.trim() ? (
-          <Button size="icon" onClick={handleSendText} aria-label={editingMessage ? "Saqlash" : "Yuborish"}>
-            {editingMessage ? <FiCheck className="h-5 w-5" /> : <FiSend className="h-5 w-5" />}
-          </Button>
+          <button
+            type="button"
+            onClick={handleSendText}
+            aria-label={editingMessage ? "Saqlash" : "Yuborish"}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white"
+            style={{ background: "#3A3845" }}
+          >
+            {editingMessage ? <FiCheck className="h-4 w-4" /> : <IoSend className="h-4 w-4" />}
+          </button>
         ) : (
           <button
             type="button"
@@ -243,11 +252,10 @@ export function MessageInput({
               void handleRecordStop();
             }}
             aria-label="Ovozli xabar yozish uchun bosib turing"
-            className={cn(
-              "flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-white",
-            )}
+            className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white")}
+            style={{ background: "#3A3845" }}
           >
-            <FiMic className="h-5 w-5" />
+            <IoMic className="h-4 w-4" />
           </button>
         )}
       </div>

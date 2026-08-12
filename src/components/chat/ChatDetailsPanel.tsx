@@ -2,15 +2,17 @@
 
 import { useState } from "react";
 import { FiImage, FiMic, FiUsers } from "react-icons/fi";
+import { HiOutlineVideoCamera } from "react-icons/hi2";
 import { Avatar } from "@/components/ui/Avatar";
 import { Modal } from "@/components/ui/Modal";
 import { MediaViewer } from "@/components/chat/MediaViewer";
 import { OnlineDot } from "@/components/presence/OnlineDot";
 import { UserProfileModal } from "@/components/profile/UserProfileModal";
 import { usePresence } from "@/hooks/usePresence";
-import { useChatDisplay } from "@/hooks/useChatDisplay";
+import { otherParticipantId, useChatDisplay } from "@/hooks/useChatDisplay";
 import { useChatMediaOverview } from "@/hooks/useChatMediaOverview";
 import { useParticipantProfiles } from "@/hooks/useParticipantProfiles";
+import { useCallStore } from "@/store/useCallStore";
 import type { Chat } from "@/types/chat";
 import type { UserProfile } from "@/types/user";
 
@@ -47,9 +49,22 @@ function ChatDetailsBody({ chat, uid }: { chat: Chat; uid: string }) {
   const memberProfiles = useParticipantProfiles(chat.type === "group" ? chat.participantIds : []);
   const [viewerSrc, setViewerSrc] = useState<{ src: string; type: "image" | "video" } | null>(null);
   const [viewProfileUid, setViewProfileUid] = useState<string | null>(null);
+  const startCall = useCallStore((s) => s.startCall);
+  const startGroupCall = useCallStore((s) => s.startGroupCall);
+  const callPhase = useCallStore((s) => s.phase);
   const mediaItems = [...imageMessages, ...videoMessages].sort(
     (a, b) => (b.createdAt?.toMillis() ?? 0) - (a.createdAt?.toMillis() ?? 0),
   );
+
+  function handleVideoCall() {
+    if (callPhase !== "idle") return;
+    if (chat.type === "group") {
+      void startGroupCall(chat.id, uid, chat.participantIds, "video");
+    } else {
+      const peerId = otherParticipantId(chat, uid);
+      if (peerId) void startCall(chat.id, uid, peerId, "video");
+    }
+  }
 
   return (
     <>
@@ -60,6 +75,15 @@ function ChatDetailsBody({ chat, uid }: { chat: Chat; uid: string }) {
           <span className="text-xs text-text-muted">
             {chat.type === "group" ? `${chat.participantIds.length} a'zo` : "Shaxsiy suhbat"}
           </span>
+          <button
+            type="button"
+            onClick={handleVideoCall}
+            disabled={callPhase !== "idle"}
+            className="mt-1 flex items-center gap-2 rounded-full bg-surface-raised px-4 py-2 text-sm font-medium text-text disabled:opacity-40"
+          >
+            <HiOutlineVideoCamera className="h-4.5 w-4.5" />
+            Video qo&apos;ng&apos;iroq
+          </button>
         </div>
 
         <div className="flex gap-3">

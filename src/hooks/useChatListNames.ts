@@ -5,7 +5,12 @@ import { useParticipantProfiles } from "@/hooks/useParticipantProfiles";
 import { otherParticipantId } from "@/hooks/useChatDisplay";
 import type { Chat } from "@/types/chat";
 
-/** Resolves a display name per chat (group name, or the other participant's name) for local search filtering. */
+/**
+ * Resolves per-chat text used for local search filtering: display name (or
+ * group name) plus, for direct chats, the peer's @username — so searching an
+ * existing contact by their exact handle still surfaces the chat even when
+ * it doesn't appear in their display name.
+ */
 export function useChatListNames(chats: Chat[], uid: string): Record<string, string> {
   const peerIds = useMemo(() => {
     const ids = chats
@@ -24,7 +29,8 @@ export function useChatListNames(chats: Chat[], uid: string): Record<string, str
         names[chat.id] = chat.groupName ?? "Guruh";
       } else {
         const peerId = otherParticipantId(chat, uid);
-        names[chat.id] = (peerId && profiles[peerId]?.displayName) || "";
+        const peerProfile = peerId ? profiles[peerId] : undefined;
+        names[chat.id] = [peerProfile?.displayName, peerProfile?.username].filter(Boolean).join(" ");
       }
     }
     return names;

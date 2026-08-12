@@ -18,8 +18,8 @@ export function ReadStatusTicks({ status, tone = "onBubble" }: ReadStatusTicksPr
         ? "text-primary"
         : "text-text-muted"
       : isRead
-        ? "text-white"
-        : "text-white/70";
+        ? "text-bubble-mine-text"
+        : "text-bubble-time";
 
   return (
     <span

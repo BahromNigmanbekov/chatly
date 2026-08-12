@@ -6,7 +6,6 @@ import { useChats } from "@/hooks/useChats";
 import { useChatListNames } from "@/hooks/useChatListNames";
 import { useUserSearch } from "@/hooks/useUserSearch";
 import { useAuthStore } from "@/store/useAuthStore";
-import { ChatListFilterBar, type ChatFilter } from "@/components/chat/ChatListFilterBar";
 import { ChatListItem } from "@/components/chat/ChatListItem";
 import { Avatar } from "@/components/ui/Avatar";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -14,13 +13,11 @@ import { Spinner } from "@/components/ui/Spinner";
 import { getOrCreateDirectChat } from "@/lib/firebase/chats";
 import { otherParticipantId } from "@/hooks/useChatDisplay";
 
-export function ChatList() {
+export function ChatList({ searchTerm }: { searchTerm: string }) {
   const router = useRouter();
   const uid = useAuthStore((s) => s.firebaseUser?.uid);
   const { chats, loading } = useChats(uid);
   const names = useChatListNames(chats, uid ?? "");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filter, setFilter] = useState<ChatFilter>("all");
   const [openingUid, setOpeningUid] = useState<string | null>(null);
 
   const isSearching = searchTerm.trim().length > 0;
@@ -29,12 +26,10 @@ export function ChatList() {
   const visibleChats = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
     return chats.filter((chat) => {
-      if (filter === "unread" && !((chat.unreadCounts?.[uid ?? ""] ?? 0) > 0)) return false;
-      if (filter === "groups" && chat.type !== "group") return false;
       if (term && !names[chat.id]?.toLowerCase().includes(term)) return false;
       return true;
     });
-  }, [chats, filter, searchTerm, names, uid]);
+  }, [chats, searchTerm, names]);
 
   // Global people search, deduped against direct chats already shown above — a
   // single search box covers both "find in my chats" and "start a new chat".
@@ -65,7 +60,7 @@ export function ChatList() {
 
   if (loading) {
     return (
-      <div className="flex flex-1 items-center justify-center">
+      <div className="flex items-center justify-center py-10">
         <Spinner />
       </div>
     );
@@ -73,33 +68,24 @@ export function ChatList() {
 
   if (chats.length === 0 && !isSearching) {
     return (
-      <>
-        <ChatListFilterBar searchTerm={searchTerm} onSearchChange={setSearchTerm} filter={filter} onFilterChange={setFilter} />
-        <EmptyState
-          title="Hali suhbatlar yo'q"
-          description="@username orqali odam qidiring yoki yangi guruh yarating."
-        />
-      </>
+      <EmptyState
+        title="Hali suhbatlar yo'q"
+        description="@username orqali odam qidiring yoki yangi guruh yarating."
+      />
     );
   }
 
   const nothingFound = visibleChats.length === 0 && newPeopleResults.length === 0;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <ChatListFilterBar
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        filter={filter}
-        onFilterChange={setFilter}
-      />
+    <div>
       {nothingFound ? (
         <EmptyState
           title="Hech narsa topilmadi"
           description="Boshqa nom bilan qidirib ko'ring yoki filtrni almashtiring."
         />
       ) : (
-        <div className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto p-2">
+        <div className="flex flex-col gap-0.5 p-2">
           {sortedChats.map((chat) => (
             <ChatListItem key={chat.id} chat={chat} />
           ))}
@@ -115,9 +101,9 @@ export function ChatList() {
                   type="button"
                   onClick={() => openChatWith(user.uid)}
                   disabled={openingUid === user.uid}
-                  className="flex min-h-18 w-full items-center gap-3 rounded-2xl px-3 py-2 text-left hover:bg-surface-raised disabled:opacity-60"
+                  className="flex min-h-18 w-full items-center gap-3 rounded-2xl px-3 py-2 text-left hover:bg-white/5 disabled:opacity-60"
                 >
-                  <Avatar name={user.displayName} photoURL={user.photoURL} size="lg" ring />
+                  <Avatar name={user.displayName} photoURL={user.photoURL} size="lg" />
                   <div className="min-w-0 flex-1">
                     <div className="truncate font-display font-semibold text-text">{user.displayName}</div>
                     <div className="truncate text-sm text-text-muted">@{user.username}</div>

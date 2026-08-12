@@ -8,8 +8,6 @@ import {
   FiInfo,
   FiLock,
   FiLogOut,
-  FiMoon,
-  FiSun,
   FiUser,
 } from "react-icons/fi";
 import { Avatar } from "@/components/ui/Avatar";
@@ -17,7 +15,6 @@ import { Spinner } from "@/components/ui/Spinner";
 import { ProfileMenuRow } from "@/components/profile/ProfileMenuRow";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useModalStore } from "@/store/useModalStore";
-import { useUIStore } from "@/store/useUIStore";
 import { useToastStore } from "@/store/useToastStore";
 import { logoutUser } from "@/lib/firebase/auth";
 
@@ -25,8 +22,6 @@ export default function SettingsPage() {
   const router = useRouter();
   const profile = useAuthStore((s) => s.profile);
   const setEditProfileOpen = useModalStore((s) => s.setEditProfileOpen);
-  const theme = useUIStore((s) => s.theme);
-  const toggleTheme = useUIStore((s) => s.toggleTheme);
   const showToast = useToastStore((s) => s.show);
 
   if (!profile) {
@@ -88,12 +83,6 @@ export default function SettingsPage() {
           <div>
             <div className="px-4 pb-1.5 text-xs font-semibold uppercase tracking-wide text-text-muted">Ilova</div>
             <div className="flex flex-col divide-y divide-border rounded-2xl border border-border bg-surface">
-              <ProfileMenuRow
-                icon={theme === "dark" ? <FiSun className="h-4 w-4" /> : <FiMoon className="h-4 w-4" />}
-                label="Mavzu"
-                trailing={theme === "dark" ? "Qorong'i" : "Yorug'"}
-                onClick={toggleTheme}
-              />
               <ProfileMenuRow
                 icon={<FiGlobe className="h-4 w-4" />}
                 label="Til"

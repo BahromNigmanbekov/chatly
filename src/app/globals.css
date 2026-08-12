@@ -1,71 +1,41 @@
 @import "tailwindcss";
 
+/*
+ * Fixed palette — one exact look, no light/dark variance (per spec). The
+ * dark-mode and data-theme blocks intentionally mirror :root so the app
+ * renders identically regardless of OS preference or any lingering
+ * `data-theme` attribute from before the toggle was removed.
+ */
 :root {
-  --color-bg: #f4f5f9;
-  --color-surface: #ffffff;
-  --color-surface-raised: #eef0f7;
-  --color-border: #e2e4ee;
-  --color-text: #14151f;
-  --color-text-muted: #767a8c;
-  --color-primary: #3f7cf9;
-  --color-primary-hover: #2f68e0;
-  --color-primary-soft: #e8eefe;
-  --color-accent: #7c5cfc;
-  --color-accent-soft: #efe9ff;
-  --color-danger: #ef4444;
-  --color-online: #22c55e;
-  --color-tab-active: #14151f;
-  --color-bubble-mine: #3f7cf9;
-  --color-bubble-mine-text: #ffffff;
-  --color-bubble-theirs: #eef0f7;
-  --color-bubble-theirs-text: #14151f;
-  --color-rail-bg: #0d0f1a;
-}
-
-:root[data-theme="dark"] {
-  --color-bg: #0a0b12;
-  --color-surface: #12141f;
-  --color-surface-raised: #1a1d2b;
-  --color-border: #242737;
-  --color-text: #f3f4f9;
-  --color-text-muted: #888ca3;
-  --color-primary: #4f8dfd;
-  --color-primary-hover: #6ea0fd;
-  --color-primary-soft: #1a2540;
-  --color-accent: #8b6bfd;
-  --color-accent-soft: #241a45;
-  --color-danger: #f87171;
-  --color-online: #34d399;
+  --color-bg: #000000;
+  --color-surface: #0e0e10;
+  --color-surface-raised: #0e0e10;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-text: #ffffff;
+  --color-text-muted: #8e8e93;
+  --color-primary: #ffffff;
+  --color-primary-hover: #e5e5e7;
+  --color-primary-soft: rgba(255, 255, 255, 0.12);
+  --color-accent: #d96bb0;
+  --color-accent-soft: rgba(217, 107, 176, 0.16);
+  --color-danger: #ff3b30;
+  --color-online: #34c759;
   --color-tab-active: #ffffff;
-  --color-bubble-mine: #4f6bfd;
-  --color-bubble-mine-text: #ffffff;
-  --color-bubble-theirs: #1a1d2b;
-  --color-bubble-theirs-text: #f3f4f9;
-  --color-rail-bg: #0a0b12;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --color-bg: #0a0b12;
-    --color-surface: #12141f;
-    --color-surface-raised: #1a1d2b;
-    --color-border: #242737;
-    --color-text: #f3f4f9;
-    --color-text-muted: #888ca3;
-    --color-primary: #4f8dfd;
-    --color-primary-hover: #6ea0fd;
-    --color-primary-soft: #1a2540;
-    --color-accent: #8b6bfd;
-    --color-accent-soft: #241a45;
-    --color-danger: #f87171;
-    --color-online: #34d399;
-    --color-tab-active: #ffffff;
-    --color-bubble-mine: #4f6bfd;
-    --color-bubble-mine-text: #ffffff;
-    --color-bubble-theirs: #1a1d2b;
-    --color-bubble-theirs-text: #f3f4f9;
-    --color-rail-bg: #0a0b12;
-  }
+  --color-bubble-mine: rgba(150, 145, 175, 0.38);
+  --color-bubble-mine-text: #2a2a35;
+  --color-bubble-theirs: rgba(255, 255, 255, 0.42);
+  --color-bubble-theirs-text: #2a2a35;
+  --color-bubble-time: #55536e;
+  --color-rail-bg: #000000;
+  --chat-body-top: #dad9de;
+  --chat-body-mid: #b9b3d6;
+  --chat-body-bottom: #c8d9c4;
+  --mesh-mint: #6fd3c8;
+  --mesh-blue: #7aa7e9;
+  --mesh-lavender: #9b8fe8;
+  --mesh-pink: #d96bb0;
+  --gradient-brand: linear-gradient(90deg, var(--mesh-mint) 0%, var(--mesh-blue) 33%, var(--mesh-lavender) 66%, var(--mesh-pink) 100%);
+  --gradient-hero: var(--gradient-brand);
 }
 
 @theme inline {
@@ -87,6 +57,7 @@
   --color-bubble-mine-text: var(--color-bubble-mine-text);
   --color-bubble-theirs: var(--color-bubble-theirs);
   --color-bubble-theirs-text: var(--color-bubble-theirs-text);
+  --color-bubble-time: var(--color-bubble-time);
   --color-rail-bg: var(--color-rail-bg);
   --font-sans: var(--font-inter);
   --font-display: var(--font-inter);
@@ -99,6 +70,28 @@
 body {
   background: var(--color-bg);
   color: var(--color-text);
+}
+
+.gradient-brand {
+  background-image: var(--gradient-brand);
+}
+
+.gradient-hero {
+  background-image: var(--gradient-hero);
+}
+
+/* Diagonal mesh: mint dominant top-left, muted pink only as an accent at the
+   bottom-right edge — never more than ~25% of the panel. */
+.mesh-gradient {
+  background-color: #9fa8e0;
+  background-image:
+    radial-gradient(120% 90% at 15% 85%, rgba(127, 216, 203, 0.55) 0%, transparent 60%),
+    radial-gradient(100% 80% at 95% 10%, rgba(199, 123, 184, 0.4) 0%, transparent 55%),
+    linear-gradient(135deg, #7fd8cb 0%, #9fa8e0 55%, #c77bb8 100%);
+}
+
+.chat-body-gradient {
+  background-image: linear-gradient(180deg, var(--chat-body-top) 0%, var(--chat-body-mid) 45%, var(--chat-body-bottom) 100%);
 }
 
 /* Scrollbars follow the theme instead of the browser's default (always-white) chrome. */
@@ -134,6 +127,18 @@ body {
 
 ::selection {
   background: var(--color-primary-soft);
+}
+
+/* No input/textarea anywhere shows a focus outline, box-shadow, or border —
+   `!important` so this holds regardless of layer or specificity elsewhere. */
+input:focus,
+input:focus-visible,
+textarea:focus,
+textarea:focus-visible {
+  outline: none !important;
+  outline-offset: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -230,8 +235,10 @@ body {
   }
 }
 
-/* Visible focus rings for keyboard navigation */
-:focus-visible {
+/* Visible focus rings for keyboard navigation. `.no-focus-ring` opts a specific
+   element out (e.g. search/message pills styled to show no outline at all) —
+   this rule is unlayered so it otherwise beats Tailwind's layered utilities. */
+:focus-visible:not(.no-focus-ring) {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
   border-radius: 4px;

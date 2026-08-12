@@ -1,6 +1,7 @@
 "use client";
 
 import { Avatar } from "@/components/ui/Avatar";
+import { Emoji } from "@/components/ui/Emoji";
 import { Modal } from "@/components/ui/Modal";
 import type { UserProfile } from "@/types/user";
 
@@ -21,7 +22,7 @@ export function ReactionsListModal({ open, onClose, reactions, participantProfil
         {entries.map(([emoji, uids]) => (
           <div key={emoji}>
             <div className="mb-1.5 flex items-center gap-2 text-sm font-medium text-text">
-              <span className="text-lg">{emoji}</span>
+              <span className="h-5 w-5"><Emoji emoji={emoji} /></span>
               <span className="tabular-nums">{uids.length}</span>
             </div>
             <div className="flex flex-col gap-1">

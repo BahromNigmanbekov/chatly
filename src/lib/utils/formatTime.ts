@@ -19,6 +19,18 @@ function timeOfDay(date: Date): string {
   return date.toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" });
 }
 
+// `Intl` has no real Uzbek locale data in most JS engines, so
+// `toLocaleDateString("uz-UZ", { month: "short" })` silently falls back to a
+// raw token like "M08" instead of a month name — spelled out by hand instead.
+const MONTH_SHORT = [
+  "yan", "fev", "mar", "apr", "may", "iyun",
+  "iyul", "avg", "sen", "okt", "noy", "dek",
+];
+
+function dateLabel(date: Date): string {
+  return `${date.getDate()}-${MONTH_SHORT[date.getMonth()]}`;
+}
+
 /** Short timestamp for chat list / message bubbles: "14:32", "kecha", "12-iyul". */
 export function formatMessageTime(value: Timestamp | Date | null | undefined): string {
   const date = toDate(value);
@@ -30,7 +42,7 @@ export function formatMessageTime(value: Timestamp | Date | null | undefined): s
   yesterday.setDate(now.getDate() - 1);
   if (isSameDay(date, yesterday)) return "kecha";
 
-  return date.toLocaleDateString("uz-UZ", { day: "numeric", month: "short" });
+  return dateLabel(date);
 }
 
 /** "oxirgi marta bugun 14:32 da" / "oxirgi marta kecha 09:10 da" / "oxirgi marta 12-iyul, 09:10 da". */
@@ -49,8 +61,7 @@ export function formatLastSeen(value: Timestamp | Date | number | null | undefin
     return `oxirgi marta kecha ${timeOfDay(date)} da`;
   }
 
-  const dateLabel = date.toLocaleDateString("uz-UZ", { day: "numeric", month: "short" });
-  return `oxirgi marta ${dateLabel}, ${timeOfDay(date)} da`;
+  return `oxirgi marta ${dateLabel(date)}, ${timeOfDay(date)} da`;
 }
 
 export function formatDuration(seconds: number | null | undefined): string {

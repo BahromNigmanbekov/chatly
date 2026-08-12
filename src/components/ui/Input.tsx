@@ -25,7 +25,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         ref={ref}
         id={inputId}
         className={cn(
-          "h-11 rounded-xl border border-border bg-surface px-3.5 text-sm text-text",
+          "h-11 rounded-full border border-border bg-surface px-4 text-sm text-text",
           "placeholder:text-text-muted",
           "focus-visible:border-primary",
           error && "border-danger",

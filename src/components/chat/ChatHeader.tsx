@@ -1,14 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FiInfo, FiPhone, FiVideo } from "react-icons/fi";
+import { IoCall, IoPersonCircleOutline } from "react-icons/io5";
 import { Avatar } from "@/components/ui/Avatar";
 import { BackButton } from "@/components/chat/BackButton";
 import { ChatDetailsPanel } from "@/components/chat/ChatDetailsPanel";
 import { PinnedMessageBar } from "@/components/chat/PinnedMessageBar";
 import { OnlineDot } from "@/components/presence/OnlineDot";
 import { TypingWave } from "@/components/presence/TypingWave";
-import { UserProfileModal } from "@/components/profile/UserProfileModal";
 import { otherParticipantId, useChatDisplay } from "@/hooks/useChatDisplay";
 import { isTypingEntryFresh } from "@/hooks/useTypingStatus";
 import { formatLastSeen } from "@/lib/utils/formatTime";
@@ -24,16 +23,16 @@ interface ChatHeaderProps {
   participantProfiles: Record<string, UserProfile>;
 }
 
-function CallButton({ kind, disabled, onClick }: { kind: "audio" | "video"; disabled: boolean; onClick: () => void }) {
+function GlassButton({ label, onClick, disabled, children }: { label: string; onClick: () => void; disabled?: boolean; children: React.ReactNode }) {
   return (
     <button
       type="button"
       disabled={disabled}
       onClick={onClick}
-      aria-label={kind === "audio" ? "Ovozli qo'ng'iroq" : "Video qo'ng'iroq"}
-      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-muted hover:bg-surface-raised disabled:opacity-40"
+      aria-label={label}
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-black/12 text-[#2A2A35] disabled:opacity-40"
     >
-      {kind === "audio" ? <FiPhone className="h-5 w-5" /> : <FiVideo className="h-5 w-5" />}
+      {children}
     </button>
   );
 }
@@ -46,7 +45,6 @@ export function ChatHeader({ chat, uid, participantProfiles }: ChatHeaderProps) 
   const callPhase = useCallStore((s) => s.phase);
   const [, forceTick] = useState(0);
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const [viewProfileUid, setViewProfileUid] = useState<string | null>(null);
 
   const peerId = chat.type === "direct" ? otherParticipantId(chat, uid) : null;
 
@@ -74,92 +72,62 @@ export function ChatHeader({ chat, uid, participantProfiles }: ChatHeaderProps) 
     if (chat.type === "group") {
       const names = typingEntries.map(([id]) => participantProfiles[id]?.displayName?.split(" ")[0] ?? "kimdir");
       subtitle = (
-        <span className="flex items-center gap-1.5 text-xs">
-          <span>{names.join(", ")}</span>
+        <span className="flex min-w-0 items-center gap-1.5 text-xs text-[#2A2A35]/60">
+          <span className="truncate">{names.join(", ")}</span>
           <TypingWave variant={variant} />
         </span>
       );
     } else {
       subtitle = (
-        <span className="flex items-center gap-1.5 text-xs">
-          <span>{variant === "voice" ? "ovozli xabar yozmoqda" : "yozmoqda"}</span>
+        <span className="flex min-w-0 items-center gap-1.5 text-xs text-[#2A2A35]/60">
+          <span className="truncate">{variant === "voice" ? "ovozli xabar yozmoqda" : "yozmoqda"}</span>
           <TypingWave variant={variant} />
         </span>
       );
     }
   } else if (chat.type === "group") {
-    subtitle = <span className="text-xs text-text-muted">{chat.participantIds.length} a&apos;zo</span>;
+    subtitle = <span className="block truncate text-xs text-[#2A2A35]/60">{chat.participantIds.length} a&apos;zo</span>;
   } else {
     subtitle = (
-      <span className="text-xs text-text-muted">
+      <span className="block truncate text-xs text-[#2A2A35]/60">
         {presence.online ? "onlayn" : formatLastSeen(presence.lastSeen)}
       </span>
     );
   }
 
-  const info = (
-    <div className="flex items-center gap-3 px-1 py-1">
-      <div className="relative shrink-0">
-        <Avatar name={name} photoURL={photoURL} size="md" />
-        {chat.type === "direct" && (
-          <OnlineDot online={presence.online} className="absolute -bottom-0.5 -right-0.5" />
-        )}
-      </div>
-      <div className="min-w-0">
-        <div className="truncate font-medium text-text">{name}</div>
-        {subtitle}
-      </div>
-    </div>
-  );
+  function openDetails() {
+    if (chat.type === "group") setGroupSettingsChatId(chat.id);
+    else setDetailsOpen(true);
+  }
 
   return (
-    <div>
+    <div
+      className="sticky top-0 z-20"
+      style={{ background: "transparent", backdropFilter: "blur(20px)", border: "none", boxShadow: "none" }}
+    >
       <div
-        className="flex items-center gap-2 border-b border-border px-3 py-2.5"
+        className="flex items-center gap-3 px-5 py-2.5"
         style={{ paddingTop: "calc(var(--safe-top) + 0.625rem)" }}
       >
         <BackButton />
-        {chat.type === "group" ? (
-          <button
-            type="button"
-            onClick={() => setGroupSettingsChatId(chat.id)}
-            className="min-w-0 flex-1 rounded-lg text-left hover:bg-surface-raised"
-          >
-            {info}
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setViewProfileUid(peerId)}
-            className="min-w-0 flex-1 rounded-lg text-left hover:bg-surface-raised"
-          >
-            {info}
-          </button>
-        )}
-        {chat.type === "group" && (
-          <div className="hidden -space-x-2.5 sm:flex" aria-hidden>
-            {chat.participantIds.slice(0, 4).map((id) => {
-              const member = participantProfiles[id];
-              if (!member) return null;
-              return <Avatar key={id} name={member.displayName} photoURL={member.photoURL} size="sm" ring className="ring-2 ring-surface" />;
-            })}
-            {chat.participantIds.length > 4 && (
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-raised text-xs font-semibold text-text-muted ring-2 ring-surface">
-                +{chat.participantIds.length - 4}
-              </span>
+        <button type="button" onClick={openDetails} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+          <div className="relative shrink-0">
+            <Avatar name={name} photoURL={photoURL} size="header" />
+            {chat.type === "direct" && (
+              <OnlineDot online={presence.online} className="absolute -bottom-0.5 -right-0.5" />
             )}
           </div>
-        )}
-        <button
-          type="button"
-          onClick={() => setDetailsOpen(true)}
-          aria-label="Suhbat ma'lumoti"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-muted hover:bg-surface-raised lg:hidden"
-        >
-          <FiInfo className="h-5 w-5" />
+          <div className="min-w-0">
+            <div className="line-clamp-2 text-[15px] font-semibold text-[#2A2A35]">{name}</div>
+            {subtitle}
+          </div>
         </button>
-        <CallButton kind="audio" disabled={callPhase !== "idle"} onClick={() => handleStartCall("audio")} />
-        <CallButton kind="video" disabled={callPhase !== "idle"} onClick={() => handleStartCall("video")} />
+        <GlassButton label="Qo'ng'iroq" disabled={callPhase !== "idle"} onClick={() => handleStartCall("audio")}>
+          <IoCall className="h-3.75 w-3.75" />
+        </GlassButton>
+        <GlassButton label="Profil" onClick={openDetails}>
+          <IoPersonCircleOutline className="h-3.75 w-3.75" />
+        </GlassButton>
       </div>
       {chat.pinnedMessageId && (
         <PinnedMessageBar
@@ -169,7 +137,6 @@ export function ChatHeader({ chat, uid, participantProfiles }: ChatHeaderProps) 
         />
       )}
       <ChatDetailsPanel chat={chat} uid={uid} open={detailsOpen} onClose={() => setDetailsOpen(false)} />
-      <UserProfileModal uid={viewProfileUid} open={viewProfileUid !== null} onClose={() => setViewProfileUid(null)} />
     </div>
   );
 }

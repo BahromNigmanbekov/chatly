@@ -11,6 +11,7 @@ import { db } from "@/lib/firebase/client";
 import type { Call } from "@/types/call";
 import type { Chat } from "@/types/chat";
 import type { ChatMessage } from "@/types/message";
+import type { Story } from "@/types/story";
 import type { UserProfile } from "@/types/user";
 
 function converter<T>(): FirestoreDataConverter<T> {
@@ -74,3 +75,11 @@ export function callDoc(chatId: string, callId: string) {
 
 /** Query across every chat's `calls` subcollection at once — used for the global incoming-call listener. */
 export const callsGroup = collectionGroup(db, "calls").withConverter(callConverter);
+
+export const storiesCol = collection(db, "stories").withConverter(
+  converter<Story>(),
+) as CollectionReference<Story>;
+
+export function storyDoc(storyId: string) {
+  return doc(storiesCol, storyId);
+}

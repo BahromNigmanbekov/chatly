@@ -12,6 +12,7 @@ import { ReplyQuote } from "@/components/chat/ReplyQuote";
 import { RichContentCard } from "@/components/chat/RichContentCard";
 import { VoiceExpiryBadge } from "@/components/chat/VoiceExpiryBadge";
 import { Avatar } from "@/components/ui/Avatar";
+import { Emoji, EmojiText } from "@/components/ui/Emoji";
 import { useEmulator } from "@/lib/firebase/client";
 import { pinMessage, toggleReaction, unpinMessage } from "@/lib/firebase/messages";
 import { useModalStore } from "@/store/useModalStore";
@@ -73,6 +74,7 @@ export function MessageBubble({
 
   const isPinned = chat.pinnedMessageId === message.id;
   const canPin = chat.type === "direct" || chat.adminIds.includes(uid);
+  const hasReactions = Object.values(message.reactions ?? {}).some((uids) => uids.length > 0);
 
   function buildMenuItems(): MessageMenuItem[] {
     const items: MessageMenuItem[] = [{ label: "Javob berish", onSelect: () => onReply(message) }];
@@ -152,7 +154,7 @@ export function MessageBubble({
         <span
           className={cn(
             "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2",
-            selected ? "border-primary bg-primary text-white" : "border-border",
+            selected ? "border-white bg-white text-black" : "border-border",
           )}
           aria-hidden
         >
@@ -173,7 +175,7 @@ export function MessageBubble({
       )}
 
       <div
-        className="relative flex min-w-0 max-w-[78%] flex-col gap-1 sm:max-w-[65%]"
+        className={cn("relative flex min-w-0 max-w-[62%] flex-col gap-1", hasReactions && "mb-2.5")}
         onClick={handleBubbleClick}
         onContextMenu={handleContextMenu}
         onTouchStart={handleTouchStart}
@@ -189,16 +191,14 @@ export function MessageBubble({
         ) : (
           <div
             className={cn(
-              "relative px-3.5 py-2 text-sm shadow-sm",
-              mine
-                ? "rounded-2xl rounded-br-md bg-bubble-mine text-bubble-mine-text"
-                : "rounded-2xl rounded-bl-md bg-bubble-theirs text-bubble-theirs-text",
+              "relative rounded-[14px] px-2.75 py-1.75 text-[12.5px]",
+              mine ? "rounded-br-[5px] bg-bubble-mine text-bubble-mine-text" : "rounded-bl-[5px] bg-bubble-theirs text-bubble-theirs-text",
               selectionMode && "cursor-pointer",
-              selected && "ring-2 ring-primary ring-offset-2 ring-offset-bg",
+              selected && "ring-2 ring-white ring-offset-2 ring-offset-[#b3b0cc]",
             )}
           >
             {message.forwardedFrom && (
-              <div className={cn("mb-1 text-xs italic", mine ? "text-white/70" : "text-text-muted")}>
+              <div className="mb-1 text-xs italic text-bubble-time">
                 Uzatilgan: {message.forwardedFrom.senderName}
               </div>
             )}
@@ -218,12 +218,21 @@ export function MessageBubble({
               </div>
             )}
 
-            {message.type === "text" && <p className="whitespace-pre-wrap wrap-anywhere">{message.content}</p>}
+            {message.type === "text" && (
+              <p className="whitespace-pre-wrap wrap-anywhere leading-snug">
+                <EmojiText text={message.content ?? ""} />
+                <span className="ml-1.5 inline-flex items-center gap-1 align-bottom whitespace-nowrap" style={{ opacity: 0.55 }}>
+                  {message.isEdited && <span style={{ fontSize: 9.5 }}>tahrirlangan</span>}
+                  <span style={{ fontSize: 9.5 }}>{formatMessageTime(message.createdAt)}</span>
+                  {mine && <ReadStatusTicks status={message.status} />}
+                </span>
+              </p>
+            )}
 
             {message.type === "voice" && (
               <div className="min-w-45">
                 {message.voiceExpired || !message.mediaURL ? (
-                  <p className={cn("py-1 text-sm italic", mine ? "text-white/70" : "text-text-muted")}>
+                  <p className="py-1 text-sm italic text-bubble-time">
                     Ovozli xabar muddati tugadi
                   </p>
                 ) : (
@@ -259,17 +268,19 @@ export function MessageBubble({
               </button>
             )}
 
-            {mine ? (
-              <div className="mt-1 flex items-center justify-end gap-1.5">
-                {message.isEdited && <span className="text-[11px] text-white/60">tahrirlangan</span>}
-                <span className="text-[11px] text-white/75">{formatMessageTime(message.createdAt)}</span>
-                <ReadStatusTicks status={message.status} />
-              </div>
-            ) : (
-              <div className="mt-1 flex justify-end gap-1.5">
-                {message.isEdited && <span className="text-[11px] text-text-muted">tahrirlangan</span>}
-                <span className="text-[11px] text-text-muted">{formatMessageTime(message.createdAt)}</span>
-              </div>
+            {message.type !== "text" && (
+              mine ? (
+                <div className="mt-1 flex items-center justify-end gap-1.5">
+                  {message.isEdited && <span className="text-[9.5px] text-bubble-time">tahrirlangan</span>}
+                  <span className="text-[9.5px] text-bubble-time">{formatMessageTime(message.createdAt)}</span>
+                  <ReadStatusTicks status={message.status} />
+                </div>
+              ) : (
+                <div className="mt-1 flex justify-end gap-1.5">
+                  {message.isEdited && <span className="text-[9.5px] text-bubble-time">tahrirlangan</span>}
+                  <span className="text-[9.5px] text-bubble-time">{formatMessageTime(message.createdAt)}</span>
+                </div>
+              )
             )}
           </div>
         )}
@@ -280,7 +291,7 @@ export function MessageBubble({
             onClick={handleDotsClick}
             aria-label="Xabar variantlari"
             className={cn(
-              "absolute top-1 hidden h-6 w-6 items-center justify-center rounded-full bg-surface text-text-muted opacity-0 shadow-sm transition-opacity group-hover:opacity-100 group-hover:flex",
+              "absolute top-1 hidden h-6 w-6 items-center justify-center rounded-full bg-white text-[#1c1b2e] opacity-0 transition-opacity group-hover:opacity-100 group-hover:flex",
               mine ? "-left-7" : "-right-7",
             )}
           >
@@ -288,29 +299,36 @@ export function MessageBubble({
           </button>
         )}
 
-        {Object.entries(message.reactions ?? {}).some(([, uids]) => uids.length > 0) && (
-          <div className={cn("flex flex-wrap gap-1 px-1", mine ? "justify-end" : "justify-start")}>
-            {Object.entries(message.reactions ?? {})
-              .filter(([, uids]) => uids.length > 0)
-              .map(([emoji, uids]) => (
-                <button
+        {(() => {
+          const activeReactions = Object.entries(message.reactions ?? {}).filter(([, uids]) => uids.length > 0);
+          if (activeReactions.length === 0) return null;
+          const totalCount = activeReactions.reduce((sum, [, uids]) => sum + uids.length, 0);
+          const shown = activeReactions.slice(0, 3);
+          return (
+            <button
+              type="button"
+              onClick={() => setReactionsListOpen(true)}
+              aria-label="Reaksiyalarni ko'rish"
+              className={cn(
+                "absolute -bottom-3 z-10 flex items-center rounded-full bg-white py-0.5 pl-1 pr-1.5",
+                mine ? "-left-2" : "-right-2",
+              )}
+            >
+              {shown.map(([emoji], i) => (
+                <span
                   key={emoji}
-                  type="button"
-                  onClick={() => setReactionsListOpen(true)}
-                  aria-label={`${emoji} bilan kimlar javob bergani`}
-                  className={cn(
-                    "flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs transition-colors",
-                    uids.includes(uid)
-                      ? "border-primary bg-primary-soft text-primary"
-                      : "border-border bg-surface text-text-muted hover:bg-surface-raised",
-                  )}
+                  className="flex h-5 w-5 items-center justify-center rounded-full bg-white p-0.5"
+                  style={{ marginLeft: i === 0 ? 0 : -6 }}
                 >
-                  <span>{emoji}</span>
-                  <span className="tabular-nums">{uids.length}</span>
-                </button>
+                  <Emoji emoji={emoji} />
+                </span>
               ))}
-          </div>
-        )}
+              {totalCount > 1 && (
+                <span className="ml-1 text-[11px] font-medium text-[#55536e] tabular-nums">{totalCount}</span>
+              )}
+            </button>
+          );
+        })()}
 
         <MessageContextMenu
           anchor={menuAnchor}
@@ -332,7 +350,7 @@ export function MessageBubble({
         <span
           className={cn(
             "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2",
-            selected ? "border-primary bg-primary text-white" : "border-border",
+            selected ? "border-white bg-white text-black" : "border-border",
           )}
           aria-hidden
         >

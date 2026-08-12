@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
 import { TbPinFilled } from "react-icons/tb";
 import { Avatar } from "@/components/ui/Avatar";
+import { EmojiText } from "@/components/ui/Emoji";
 import { MessageContextMenu, type MessageMenuItem } from "@/components/chat/MessageContextMenu";
-import { OnlineDot } from "@/components/presence/OnlineDot";
 import { ReadStatusTicks } from "@/components/chat/ReadStatusTicks";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useChatDisplay } from "@/hooks/useChatDisplay";
@@ -63,38 +63,41 @@ export function ChatListItem({ chat }: { chat: Chat }) {
   }
 
   return (
-    <div className={cn("relative flex min-h-18 items-center rounded-2xl", isActive && "bg-surface-raised")}>
+    <div className={cn("relative flex min-h-19 items-center rounded-2xl", isActive && "bg-white/5")}>
       <Link
         href={`/chats/${chat.id}`}
         onContextMenu={handleContextMenu}
         onTouchStart={handleTouchStart}
         onTouchEnd={clearPressTimer}
         onTouchMove={clearPressTimer}
-        className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl px-3 py-2 hover:bg-surface-raised"
+        className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl px-3 py-2 hover:bg-white/5"
       >
         <div className="relative shrink-0">
-          <Avatar name={name} photoURL={photoURL} size="lg" ring />
-          {chat.type === "direct" && (
-            <OnlineDot online={presence.online} className="absolute -bottom-0.5 -right-0.5" />
+          <Avatar name={name} photoURL={photoURL} size="lg" />
+          {chat.type === "direct" && presence.online && (
+            <span
+              className="absolute right-0 bottom-0 rounded-full bg-online"
+              style={{ width: 13, height: 13, border: "2.5px solid #000000" }}
+            />
           )}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
-            <span className="truncate font-display font-semibold text-text">{name}</span>
-            <span className="flex shrink-0 items-center gap-1 text-xs text-text-muted">
-              {isPinned && <TbPinFilled className="h-3 w-3 text-primary" aria-label="Mahkamlangan" />}
+            <span className="truncate text-base font-semibold text-white">{name}</span>
+            <span className="flex shrink-0 items-center gap-1 text-xs text-[#8e8e93]">
+              {isPinned && <TbPinFilled className="h-3 w-3 text-white/60" aria-label="Mahkamlangan" />}
               {chat.lastMessage?.timestamp && formatMessageTime(chat.lastMessage.timestamp)}
             </span>
           </div>
           <div className="mt-0.5 flex items-center justify-between gap-2">
-            <span className="flex min-w-0 items-center gap-1 truncate text-sm text-text-muted">
+            <span className="flex min-w-0 items-center gap-1 truncate text-[13.5px] text-[#8e8e93]">
               {isMine && chat.lastMessage && (
                 <ReadStatusTicks status={chat.lastMessage.status ?? "sent"} tone="muted" />
               )}
-              <span className="truncate">{preview}</span>
+              <span className="truncate"><EmojiText text={preview} /></span>
             </span>
             {unread > 0 && (
-              <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-semibold text-white">
+              <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-white px-1.5 text-xs font-semibold text-black">
                 {unread > 99 ? "99+" : unread}
               </span>
             )}

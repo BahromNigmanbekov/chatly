@@ -11,7 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Chatly",
+  title: "Gap",
   description: "Real vaqtli xabar almashish platformasi",
 };
 

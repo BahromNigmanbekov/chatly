@@ -100,3 +100,7 @@ export function avatarPath(uid: string) {
 export function groupPhotoPath(chatId: string) {
   return `groups/${chatId}.jpg`;
 }
+
+export function storyPath(uid: string, storyId: string, filename: string) {
+  return `stories/${uid}/${storyId}-${sanitizeFilename(filename)}`;
+}

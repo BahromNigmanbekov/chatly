@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { FiMessageCircle, FiPlus } from "react-icons/fi";
 import { Avatar } from "@/components/ui/Avatar";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useModalStore } from "@/store/useModalStore";
 import { cn } from "@/lib/utils/cn";
@@ -20,12 +19,15 @@ export function IconRail() {
 
   return (
     <nav
-      className="hidden w-18 shrink-0 flex-col items-center gap-2 bg-rail-bg py-4 md:flex"
+      className="hidden w-18 shrink-0 flex-col items-center gap-2 bg-bg py-4 md:flex"
       style={{ paddingTop: "calc(var(--safe-top) + 1rem)", paddingBottom: "calc(var(--safe-bottom) + 1rem)" }}
       aria-label="Asosiy navigatsiya"
     >
-      <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-primary font-display text-base font-bold text-white">
-        C
+      <div
+        className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl font-display text-base font-bold text-white"
+        style={{ backgroundImage: "var(--gradient-brand)" }}
+      >
+        G
       </div>
 
       <button
@@ -35,7 +37,7 @@ export function IconRail() {
         aria-current={isChats ? "page" : undefined}
         className={cn(
           "flex h-11 w-11 items-center justify-center rounded-2xl transition-colors",
-          isChats ? "bg-primary text-white" : "text-white/50 hover:bg-white/10 hover:text-white",
+          isChats ? "bg-white text-black" : "text-white/50 hover:bg-white/10 hover:text-white",
         )}
       >
         <FiMessageCircle className="h-5 w-5" aria-hidden />
@@ -51,11 +53,10 @@ export function IconRail() {
       </button>
 
       <div className="mt-auto flex flex-col items-center gap-3">
-        <ThemeToggle />
         <Link
           href="/profile"
           aria-label="Profil"
-          className={cn("rounded-full ring-2 ring-offset-2 ring-offset-rail-bg", isProfile ? "ring-primary" : "ring-transparent")}
+          className={cn("rounded-full ring-2 ring-offset-2 ring-offset-bg", isProfile ? "ring-white" : "ring-transparent")}
         >
           <Avatar name={profile?.displayName ?? "?"} photoURL={profile?.photoURL} size="sm" />
         </Link>

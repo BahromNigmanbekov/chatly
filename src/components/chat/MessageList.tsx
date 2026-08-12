@@ -110,15 +110,15 @@ export function MessageList({ chat, uid, senderNames, participantProfiles, onRep
 
   return (
     <>
-      <div ref={scrollRef} onScroll={handleScroll} className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto px-3 py-4 sm:px-6">
+      <div ref={scrollRef} onScroll={handleScroll} className="flex min-h-0 min-w-0 flex-1 flex-col gap-1 overflow-y-auto px-4 pt-2 pb-4 sm:px-6">
         {loadingMore && (
           <div className="flex justify-center py-2">
             <Spinner className="h-4 w-4" />
           </div>
         )}
         {messages.length === 0 && (
-          <p className="mt-auto text-center text-sm text-text-muted">
-            Birinchi xabarni yuboring 👋
+          <p className="mt-auto text-center text-sm text-[#55536e]">
+            Birinchi xabarni yuboring
           </p>
         )}
         {messages.map((message) => (

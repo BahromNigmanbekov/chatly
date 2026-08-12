@@ -12,7 +12,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<Variant, string> = {
-  primary: "bg-primary text-white hover:bg-primary-hover disabled:opacity-50",
+  primary: "bg-[#cfcce4] text-[#1c1b2e] hover:bg-[#dcdaec] disabled:opacity-50",
   secondary:
     "bg-surface-raised text-text border border-border hover:bg-primary-soft disabled:opacity-50",
   ghost: "bg-transparent text-text hover:bg-primary-soft disabled:opacity-50",
@@ -20,9 +20,9 @@ const variantClasses: Record<Variant, string> = {
 };
 
 const sizeClasses: Record<Size, string> = {
-  sm: "h-8 px-3 text-sm rounded-lg",
-  md: "h-10 px-4 text-sm rounded-xl",
-  lg: "h-12 px-5 text-base rounded-xl",
+  sm: "h-8 px-3 text-sm rounded-full",
+  md: "h-10 px-4 text-sm rounded-full",
+  lg: "h-12 px-5 text-base rounded-full",
   icon: "h-10 w-10 rounded-full justify-center",
 };
 

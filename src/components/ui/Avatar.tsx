@@ -5,7 +5,9 @@ import { cn } from "@/lib/utils/cn";
 const sizeMap = {
   sm: 32,
   md: 40,
-  lg: 56,
+  header: 34,
+  lg: 52,
+  story: 56,
   xl: 88,
 };
 
