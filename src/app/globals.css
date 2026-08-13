@@ -7,9 +7,9 @@
  * `data-theme` attribute from before the toggle was removed.
  */
 :root {
-  --color-bg: #000000;
-  --color-surface: #0e0e10;
-  --color-surface-raised: #0e0e10;
+  --color-bg: #1e1e22;
+  --color-surface: #1e1e22;
+  --color-surface-raised: #1e1e22;
   --color-border: rgba(255, 255, 255, 0.08);
   --color-text: #ffffff;
   --color-text-muted: #8e8e93;
@@ -26,7 +26,7 @@
   --color-bubble-theirs: rgba(255, 255, 255, 0.42);
   --color-bubble-theirs-text: #2a2a35;
   --color-bubble-time: #55536e;
-  --color-rail-bg: #000000;
+  --color-rail-bg: #1e1e22;
   --chat-body-top: #dad9de;
   --chat-body-mid: #b9b3d6;
   --chat-body-bottom: #c8d9c4;

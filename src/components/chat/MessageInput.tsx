@@ -127,7 +127,7 @@ export function MessageInput({
 
   if (disabled) {
     return (
-      <div className="rounded-t-2xl bg-surface px-4 py-3 text-center text-sm text-white/60">
+      <div className="bg-surface px-4 py-3 text-center text-sm text-white/60">
         Bu guruhda faqat adminlar xabar yubora oladi
       </div>
     );
@@ -135,7 +135,7 @@ export function MessageInput({
 
   if (recorder.recording) {
     return (
-      <div className="flex items-center gap-3 rounded-t-2xl bg-surface px-4 py-3">
+      <div className="flex items-center gap-3 bg-surface px-4 py-3">
         <span className="flex h-3 w-3 shrink-0 animate-pulse rounded-full bg-danger" />
         <span className="flex-1 text-sm text-white">Ovozli xabar yozilmoqda... {formatDuration(recorder.elapsedMs / 1000)}</span>
         <Button variant="danger" size="sm" onClick={() => { recorder.cancel(); setTyping(null); }}>
@@ -149,7 +149,7 @@ export function MessageInput({
   }
 
   return (
-    <div className="rounded-t-2xl bg-surface" style={{ paddingBottom: "var(--safe-bottom)" }}>
+    <div className="bg-surface" style={{ paddingBottom: "var(--safe-bottom)" }}>
       {editingMessage ? (
         <div className="flex items-center gap-2 rounded-t-2xl bg-white/10 px-3 py-1.5 text-xs">
           <span className="flex-1 font-medium text-white">Xabarni tahrirlash</span>
@@ -219,7 +219,7 @@ export function MessageInput({
             }
           }}
           className="no-focus-ring max-h-32 min-h-10.5 flex-1 resize-none rounded-full border-none px-4 py-2.5 text-sm text-white outline-none placeholder:text-[#6B6875] focus:outline-none focus:ring-0 focus-visible:outline-none"
-          style={{ background: "#1C1C1E" }}
+          style={{ background: "#2b2b30" }}
         />
 
         {uploadProgress !== null && (

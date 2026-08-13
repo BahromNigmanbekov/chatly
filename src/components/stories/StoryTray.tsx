@@ -89,7 +89,7 @@ export function StoryTray() {
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
               aria-label="Status qo'shish"
-              className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-black text-white ring-2 ring-white"
+              className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-bg text-white ring-2 ring-white"
             >
               {uploading ? <Spinner className="h-3 w-3 border-white/40 border-t-white" /> : <FiPlus className="h-3 w-3" />}
             </button>

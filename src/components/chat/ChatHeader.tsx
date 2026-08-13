@@ -101,7 +101,7 @@ export function ChatHeader({ chat, uid, participantProfiles }: ChatHeaderProps) 
   }
 
   return (
-    <div className="sticky top-0 z-20 rounded-b-2xl bg-black">
+    <div className="sticky top-0 z-20 bg-surface/45 backdrop-blur-sm">
       <div
         className="flex items-center gap-3 px-5 py-2.5"
         style={{ paddingTop: "calc(var(--safe-top) + 0.625rem)" }}

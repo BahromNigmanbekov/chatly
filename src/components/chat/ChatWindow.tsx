@@ -30,16 +30,20 @@ export function ChatWindow({ chat, uid }: { chat: Chat; uid: string }) {
 
   return (
     <div className="flex min-h-0 flex-1">
-      <div className="chat-body-gradient flex min-h-0 min-w-0 flex-1 flex-col">
-        <ChatHeader chat={chat} uid={uid} participantProfiles={participantProfiles} />
-        <MessageList
-          chat={chat}
-          uid={uid}
-          senderNames={senderNames}
-          participantProfiles={participantProfiles}
-          onReply={setReplyingTo}
-          onEdit={setEditingMessage}
-        />
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-surface">
+        {/* Rounding lives on the gradient card's bottom edge, not the input's
+            top — the input is a flat bar flush with the surface behind it. */}
+        <div className="chat-body-gradient flex min-h-0 flex-1 flex-col overflow-hidden rounded-b-3xl">
+          <ChatHeader chat={chat} uid={uid} participantProfiles={participantProfiles} />
+          <MessageList
+            chat={chat}
+            uid={uid}
+            senderNames={senderNames}
+            participantProfiles={participantProfiles}
+            onReply={setReplyingTo}
+            onEdit={setEditingMessage}
+          />
+        </div>
         <MessageInput
           chatId={chat.id}
           uid={uid}

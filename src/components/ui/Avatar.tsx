@@ -27,17 +27,9 @@ function initialsFrom(name: string): string {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
-const RING_COLORS = ["#f472b6", "#4f8dfd", "#fb923c", "#34d399", "#a78bfa", "#fbbf24"];
-
-function ringColorFor(name: string): string {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
-  return RING_COLORS[hash % RING_COLORS.length];
-}
-
 export function Avatar({ name, photoURL, size = "md", className, ring }: AvatarProps) {
   const px = sizeMap[size];
-  const ringStyle = ring ? { boxShadow: `0 0 0 2px var(--color-surface), 0 0 0 4px ${ringColorFor(name)}` } : undefined;
+  const ringStyle = ring ? { boxShadow: "0 0 0 2px var(--color-surface), 0 0 0 4px #b9b3d6" } : undefined;
 
   if (photoURL) {
     return (
@@ -53,15 +45,13 @@ export function Avatar({ name, photoURL, size = "md", className, ring }: AvatarP
     );
   }
 
-  // A translucent theme-tinted fill only reads against the one background it
-  // was tuned for — this needs to stay legible on both the black app shell
-  // and the white sidebar header, so the fallback avatar is its own opaque,
-  // per-name color (reusing the same hash as the ring) rather than a
-  // semi-transparent token.
+  // Same light gradient as the chat body, so every photo-less avatar matches
+  // instead of each getting a random per-name color. It's light, so the
+  // initials need a dark ink (the bubble-text token) to stay legible.
   return (
     <div
-      className={cn("flex items-center justify-center rounded-full font-display font-semibold text-white shrink-0", className)}
-      style={{ width: px, height: px, fontSize: px * 0.36, backgroundColor: ringColorFor(name), ...ringStyle }}
+      className={cn("chat-body-gradient flex items-center justify-center rounded-full font-display font-semibold shrink-0", className)}
+      style={{ width: px, height: px, fontSize: px * 0.36, color: "var(--color-bubble-mine-text)", ...ringStyle }}
     >
       {initialsFrom(name)}
     </div>

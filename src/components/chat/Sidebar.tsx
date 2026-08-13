@@ -75,7 +75,7 @@ export function Sidebar() {
     <div className="relative flex h-full flex-col bg-bg">
       <div
         style={{ height: headerHeight, paddingTop: "var(--safe-top)" }}
-        className={`sticky top-0 z-30 overflow-hidden rounded-b-4xl bg-white ${
+        className={`chat-body-gradient sticky top-0 z-30 overflow-hidden rounded-b-4xl ${
           released ? "transition-[height] duration-450 ease-out" : ""
         }`}
       >

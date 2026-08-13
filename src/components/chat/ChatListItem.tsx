@@ -76,7 +76,7 @@ export function ChatListItem({ chat }: { chat: Chat }) {
           {chat.type === "direct" && presence.online && (
             <span
               className="absolute right-0 bottom-0 rounded-full bg-online"
-              style={{ width: 13, height: 13, border: "2.5px solid #000000" }}
+              style={{ width: 13, height: 13, border: "2.5px solid var(--color-bg)" }}
             />
           )}
         </div>
