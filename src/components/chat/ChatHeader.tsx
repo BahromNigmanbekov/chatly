@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { IoCall, IoPersonCircleOutline } from "react-icons/io5";
+import { HiOutlineVideoCamera } from "react-icons/hi2";
 import { Avatar } from "@/components/ui/Avatar";
 import { BackButton } from "@/components/chat/BackButton";
 import { ChatDetailsPanel } from "@/components/chat/ChatDetailsPanel";
@@ -101,38 +102,47 @@ export function ChatHeader({ chat, uid, participantProfiles }: ChatHeaderProps) 
   }
 
   return (
-    <div className="sticky top-0 z-20 bg-surface/45 backdrop-blur-sm">
-      <div
-        className="flex items-center gap-3 px-5 py-2.5"
-        style={{ paddingTop: "calc(var(--safe-top) + 0.625rem)" }}
-      >
-        <BackButton />
-        <button type="button" onClick={openDetails} className="flex min-w-0 flex-1 items-center gap-3 text-left">
-          <div className="relative shrink-0">
-            <Avatar name={name} photoURL={photoURL} size="header" />
-            {chat.type === "direct" && (
-              <OnlineDot online={presence.online} className="absolute -bottom-0.5 -right-0.5" />
-            )}
-          </div>
-          <div className="min-w-0">
-            <div className="line-clamp-2 text-[15px] leading-snug font-semibold text-white">{name}</div>
-            {subtitle}
-          </div>
-        </button>
-        <GlassButton label="Qo'ng'iroq" disabled={callPhase !== "idle"} onClick={() => handleStartCall("audio")}>
-          <IoCall className="h-3.75 w-3.75" />
-        </GlassButton>
-        <GlassButton label="Profil" onClick={openDetails}>
-          <IoPersonCircleOutline className="h-3.75 w-3.75" />
-        </GlassButton>
+    // `ChatDetailsPanel` renders a `position: fixed` modal — it has to live
+    // outside the backdrop-blur wrapper below, since `backdrop-filter`
+    // creates a new containing block for fixed descendants and would trap
+    // the modal inside this small header bar instead of the viewport.
+    <div className="sticky top-0 z-20">
+      <div className="bg-surface/45 backdrop-blur-sm">
+        <div
+          className="flex items-center gap-3 px-5 py-2.5"
+          style={{ paddingTop: "calc(var(--safe-top) + 0.625rem)" }}
+        >
+          <BackButton />
+          <button type="button" onClick={openDetails} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+            <div className="relative shrink-0">
+              <Avatar name={name} photoURL={photoURL} size="header" />
+              {chat.type === "direct" && (
+                <OnlineDot online={presence.online} className="absolute -bottom-0.5 -right-0.5" />
+              )}
+            </div>
+            <div className="min-w-0">
+              <div className="line-clamp-2 text-[15px] leading-snug font-semibold text-white">{name}</div>
+              {subtitle}
+            </div>
+          </button>
+          <GlassButton label="Qo'ng'iroq" disabled={callPhase !== "idle"} onClick={() => handleStartCall("audio")}>
+            <IoCall className="h-3.75 w-3.75" />
+          </GlassButton>
+          <GlassButton label="Video qo'ng'iroq" disabled={callPhase !== "idle"} onClick={() => handleStartCall("video")}>
+            <HiOutlineVideoCamera className="h-4 w-4" />
+          </GlassButton>
+          <GlassButton label="Profil" onClick={openDetails}>
+            <IoPersonCircleOutline className="h-3.75 w-3.75" />
+          </GlassButton>
+        </div>
+        {chat.pinnedMessageId && (
+          <PinnedMessageBar
+            chatId={chat.id}
+            messageId={chat.pinnedMessageId}
+            canUnpin={chat.type === "direct" || chat.adminIds.includes(uid)}
+          />
+        )}
       </div>
-      {chat.pinnedMessageId && (
-        <PinnedMessageBar
-          chatId={chat.id}
-          messageId={chat.pinnedMessageId}
-          canUnpin={chat.type === "direct" || chat.adminIds.includes(uid)}
-        />
-      )}
       <ChatDetailsPanel chat={chat} uid={uid} open={detailsOpen} onClose={() => setDetailsOpen(false)} />
     </div>
   );
